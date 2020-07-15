@@ -1,0 +1,53 @@
+<div class="breadcrumbs" id="breadcrumbs">
+        <ul class="breadcrumb">
+            <li>
+                <i class="home-icon fa fa-home"></i>
+                <a href="#">企业</a>
+            </li>
+            <li>
+                <a href="#">企业经营范围管理</a>
+            </li>
+            <li class="active">编辑经营范围</li>
+        </ul>
+    </div>
+    <div class="content table-responsive">
+        <form action="{url:/company/jyfw_save}" method="post">
+            <input name="id" value="" type="hidden" />
+            <table class="table form-table">
+                <colgroup>
+                    <col width="130px" />
+                    <col />
+                </colgroup>
+                <tr>
+                    <th>经营范围名称：</th>
+                    <td>
+                        <input class="form-control" name="name" type="text" value="" pattern="required" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>上级经营范围：</th>
+                    <td>
+                        <!--经营范围数据显示-->
+                        <span id="__jyfwcategoryBox" style="margin-bottom:8px"></span>
+                        <button class="btn btn-default" type="button" name="_jyfwCategoryButton"><i class="fa fa-list"></i> 设置经营范围</button>
+                        {set:plugin::trigger('jyfwCategoryWidget',array("name" => "parent_id","value" => isset($this->categoryRow['parent_id']) ? $this->categoryRow['parent_id'] : IReq::get('pid')))}
+                        <p class="help-block">如果不选择上级经营范围，默认为顶级经营范围</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th>排序：</th><td><input class="form-control" name="sort" pattern='int' empty type="text" value=""/></td>
+                </tr>
+                <tr>
+                    <td></td><td><button class='btn btn-primary' type="submit">确定</button></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    
+    <script type="text/javascript">
+    $(function()
+    {
+        var formObj = new Form();
+        formObj.init({echo:JSON::encode($this->categoryRow)});
+    })
+    </script>

@@ -1,0 +1,221 @@
+{set:
+    $com_id = IFilter::act(isset(IReq::get('search')['u.com_id'])?IReq::get('search')['u.com_id']:0);
+}
+<div class="breadcrumbs" id="breadcrumbs">
+        <ul class="breadcrumb">
+            <li>
+                <i class="home-icon fa fa-home"></i>
+                <a href="#">员工</a>
+            </li>
+            <li>
+                <a href="#">员工管理</a>
+            </li>
+            <li class="active">员工列表</li>
+        </ul>
+    </div>
+    
+    <div class="content table-responsive">
+            <form name="searchuser" action="{url:/company/company_work_list}" method="get" class="pull-right form-inline" style="margin:0">
+                <input type="hidden" name="controller" value="company"/>
+                <input type="hidden" name="action" value="company_work_list"/>
+                <span id="__categoryBox" style="margin-bottom:8px"></span>
+                <button class="btn btn-default" type="button" name="_memberCategoryButton"><i class="fa fa-list"></i>过滤岗位</button>
+                {set:plugin::trigger('memberCategoryWidget',array("type"=>"radio","name" => "gw_id","value" => isset($this->member_category) ? $this->member_category : ''))}
+                <select class="form-control" name="czz">
+                    <option value="">操作证</option>
+                    <option value="1">正常</option>
+                    <option value="2">过期</option>
+                    <option value="3">过审</option>
+                </select>
+                <select class="form-control" name="aqz">
+                    <option value="">安全证</option>
+                    <option value="1">正常</option>
+                    <option value="2">过期</option>
+                </select>
+                <select class="form-control" name="search[u.is_del=]">
+                        <option value="">是否在职</option>
+                        <option value="0">入职</option>
+                        <option value="1">离职</option>
+                </select>
+                <select class="form-control" name="search[u.is_accept=]">
+                        <option value="">是否审核</option>
+                        <option value="1">通过</option>
+                        <option value="0">待审</option>
+                </select>
+                <select class="form-control" name="search[like]">
+                    <option value="m.true_name">姓名</option>
+                    <option value="c.name">企业</option>
+                    <option value="m.mobile">手机</option>
+                    <option value="u.aqzg">安全资格</option>
+                    <option value="u.tzzy">特种作业</option>
+                </select>
+                <input class="form-control" name="search[likeValue]" type="text" value=""/>
+                <button class="btn btn-default" type="submit">
+                    <i class="fa fa-search"></i>搜 索
+                </button>
+            </form>
+        <table class="table list-table table-striped table-hover  table-bordered">
+            <colgroup>
+                <col width="35px" />
+                <col width="100px"/>
+                <col width="60px"/>
+                <col width="180px" />
+                <col width="50px" />
+                <col width="200px" />
+                <col />
+                <col width="80px" />
+                <col width="80px" />
+                <col width="50px" />
+                <col width="50px" />
+                <col width="150px" />
+                <col width="150px" />
+                <col width="60px" />
+            </colgroup>
+            <caption>
+                <a class="btn btn-default" href='{url:/company/company_work_edit/com_id/$com_id}'>
+                    <i class="fa fa-plus"></i>添加从业人员
+                </a>
+                <a class="btn btn-default" onclick="selectAll('id[]')">
+                    <i class="fa fa-check"></i>全选
+                </a>
+                <a class="btn btn-default" onclick="delModel({'form':'member_list','link':'{url:/company/company_work_out}','name':'id[]','msg':'确定要离职所选中的员工吗？'})">
+                    <i class="fa fa-user-times"></i>批量离职
+                </a>
+                <a class="btn btn-default" onclick="delModel({'form':'member_list','link':'{url:/company/company_work_in}','name':'id[]','msg':'确定要入职所选中的员工吗？'})">
+                    <i class="fa fa-user-plus"></i>批量入职
+                </a>
+                <a class="btn btn-default" onclick="delModel({'form':'member_list','link':'{url:/company/company_work_accept_in}','name':'id[]','msg':'确定要通过所选中的员工吗？'})">
+                    <i class="fa fa-user-times"></i>批量审核通过
+                </a>
+                <a class="btn btn-default" onclick="delModel({'form':'member_list','link':'{url:/company/company_work_accept_out}','name':'id[]','msg':'确定要不通过所选中的员工吗？'})">
+                    <i class="fa fa-user-plus"></i>批量审核不过
+                </a>
+                <a class="btn btn-default" onclick="delModel({'form':'member_list','link':'{url:/company/company_work_del}','name':'id[]','msg':'删除不可恢复！确定要删除所选中的员工吗？只有离职的可被删除'})">
+                <i class="fa fa-close"></i>批量删除
+                </a>
+            </caption>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>手机</th>
+                    <th>姓名</th>
+                    <th>资质证号</th>
+                    <th>性别</th>
+                    <th>公司</th>
+                    <th>岗位</th>
+                    <th>在职</th>
+                    <th>审核</th>
+                    <th>激活</th>
+                    <th>积分</th>
+                    <th>注册日期</th>
+                    <th>离职日期</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <form action="{url:/company/company_work_del}" method="post" name="member_list" onsubmit="return checkboxCheck('id[]','尚未选中任何记录！')">
+            <tbody>
+               {foreach:items=$this->query->find()}
+                <tr class="{echo:(!$item['status']) ? 'danger':''}">
+                    <td><input name="id[]" type="checkbox" value="{$item['id']}" /></td>
+                    <td title="{echo:htmlspecialchars($item['mobile'])}">{$item['mobile']}
+                        {if:$item['status']=='0'}
+                        账号被锁
+                        {elseif:!$item['status']}
+                        账号不存在
+                        {elseif:$item['status']==2}
+                        账号被锁
+                        {elseif:$item['status']==3}
+                        账号被删
+                        {/if}
+                    </td>
+                    <td>{$item['true_name']}</td>
+                    <td class="{echo:($item['is_check']==1) ? 'warning':''}" title="{if:$item['tzzy_code']!=''}复审:{$item['tzzy_f_time']}{/if}">
+                     {if:$item['tzzy_code']!=''}
+                     <span class="label label-primary">特</span>{$item['tzzy_code']}
+                    </br>{$item['tzzy_c_time']}/{$item['tzzy_h_time']}
+                     {/if}
+                     {if:$item['aqzg_code']!=''}
+                     <span class="label label-primary">安</span>{$item['aqzg_code']}
+                    </br>{$item['aqzg_c_time']}/{$item['aqzg_h_time']}
+                     {/if}
+                    </td>
+                    <td>{if:$item['sex']=='1'}男{else:}女{/if}</td>
+                    <td title="{$item['cname']}"><a href="{url:/company/company_list/search[c.id]/=$item['com_id']}">{$item['cname']}</a></td>
+                    <td>
+                            {foreach:items=Api::run('getGWCategoryExtendNameByCategoryid',array('id'=>$item["id"])) item=$catName}
+                                [{$catName['name']}]
+                            {/foreach}
+                    </td>
+                    <td>
+                        <select class="form-control input-sm" onchange="changeDel({$item['id']},this)">
+                                <option value="0" {if:$item['is_del'] == 0}selected="selected"{/if}>入职</option>
+                                <option value="1" {if:$item['is_del'] == 1}selected="selected"{/if}>离职</option>
+                        </select>
+                    <td>
+                            {if:$item['is_del'] == 0}
+                            <select class="form-control input-sm" onchange="changeStatus({$item['id']},this)">
+                                <option value="0" {if:$item['is_accept'] == 0}selected="selected"{/if}>待审</option>
+                                <option value="1" {if:$item['is_accept'] == 1}selected="selected"{/if}>通过</option>
+                            </select>
+                            {/if}
+                    </td>
+                    <td>{if:$item['hasAct']=='1'}是{else:}否{/if}</td>
+                    <td title="{$item['point']}">{$item['point']}</td>
+                    <td title="{$item['create_time']}">{$item['create_time']}</td>
+                    <td title="{$item['leve_time']}">{$item['leve_time']}</td>
+                    <td>
+                        {if:$item['status']==1}
+                        <a href="{url:/company/company_work_edit/id/$item['id']}"><i class='operator fa fa-edit'></i></a>
+                        {/if}
+                    </td>
+                </tr>
+                {/foreach}
+            </tbody>
+            </form>
+        </table>
+        {$this->query->getPageBar()}
+    </div>
+    
+    <script language="javascript">
+    //预加载
+    $(function(){
+        var searchData = {echo:JSON::encode(IReq::get('search'))};
+        for(var index in searchData)
+        {
+            $('[name="search['+index+']"]').val(searchData[index]);
+        }
+        $('[name="czz"]').val("{echo:IReq::get('czz')}");
+        $('[name="aqz"]').val("{echo:IReq::get('aqz')}");
+    })
+
+
+        //企业状态修改
+    function changeStatus(sid,obj)
+    {
+        var lockVal = obj.value;
+        $.getJSON("{url:/company/ajax_user_company_lock}",{"id":sid,"accept":lockVal},
+             function(re_data){
+                if(re_data.ret_code!=0){
+                    toastr.error(re_data.ret_msg.desc);
+                }else{
+                    toastr.success('修改成功');
+                }
+            });
+    }
+            //企业状态修改
+    function changeDel(sid,obj)
+    {
+        var lockVal = obj.value;
+        $.getJSON("{url:/company/ajax_user_company_del}",{"id":sid,"accept":lockVal},
+            function(re_data){
+                if(re_data.ret_code!=0){
+                    obj.selectedIndex=1;
+                    toastr.error(re_data.ret_msg.desc);
+                }else{
+                    toastr.success('修改成功');
+                }
+            }
+        );
+    }
+    </script>
+    

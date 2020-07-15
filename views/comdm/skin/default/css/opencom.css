@@ -1,0 +1,48 @@
+html {
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: Arial,"Microsoft Yahei";
+    margin: 0;
+    padding: 0;
+}
+.header_top{
+    height: 130px;
+    width: 130px;
+    background: url("../images/login/logo.png");
+    background-size: 125%;
+    background-repeat: no-repeat;
+    background-position: center top;
+    margin: auto;
+}
+
+.clearfix{
+    height: 130px;
+    background: url("../images/login/pcbeijing.png");
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    margin-bottom: 15px;
+}
+@media(min-width: 1400px){
+    .clearfix{
+        background-size: 100%;
+    }
+}
+
+@media screen and (max-width: 480px){
+    body{
+        background: url("../images/login/head_mobile.png");
+        background-size: 100%;
+        background-repeat: no-repeat;
+        background-position: center top;
+    }
+    .clearfix{
+        background:none;
+    }
+    .header_top{
+        display: none;
+    }
+}
+
+

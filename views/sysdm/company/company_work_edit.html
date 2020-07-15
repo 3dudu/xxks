@@ -1,0 +1,428 @@
+{js:artTemplate}
+{js:areaSelect}
+{js:autocompleter}
+{js:my97date}
+{js:jqueryViewer}
+
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">企业</a>
+		</li>
+		<li>
+			<a href="#">人员管理</a>
+		</li>
+		<li class="active">编辑员工</li>
+	</ul>
+</div>
+<div class="content table-responsive">
+	<form action="{url:/company/company_work_save}" method="post" name="memberForm" enctype="multipart/form-data">
+		<input name="user_id" value="" type="hidden" />
+		<input name="work_id" value="{$companyWork['id']}" type="hidden" />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tbody>
+				<tr>
+					<th>手机：</th><td><input class="form-control" name="mobile" type="text" value="" pattern="mobi" placeholder="手机号码" autocomplete="off"/>
+						<p class="help-block">将作为登录账号，如果账号已存在，添加新工作关系时不会修改账号密码和个人信息</p>
+					</td>
+				</tr>
+                <tr>
+                    <th>姓名：</th>
+                    <td><input class="form-control" name="true_name" pattern="required" type="text" value="" placeholder="真实的姓名" autocomplete="off"/></td>
+                </tr>
+                <tr>
+                    <th>身份证号码：</th>
+                    <td><input class="form-control" name="idcode" type="text" pattern="id" empty value="" placeholder="身份证号码" autocomplete="off"/></td>
+                </tr>
+				<tr>
+					<th>密码：</th><td><input class="form-control" name="password" type="password" /></td>
+				</tr>
+				<tr>
+					<th>确认密码：</th><td><input class="form-control" name="repassword" type="password" /></td>
+				</tr>
+				<tr>
+					<th>性别：</th>
+					<td>
+                        <label class="radio-inline">
+                            <input type="radio" name="sex" value="1" checked=checked>男
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="sex" value="2">女
+                        </label>
+					</td>
+                </tr>
+                <tr>
+                        <th>入职企业：</th>
+                        <td>
+                            <table class='table list-table table-bordered text-center' style='width:650px'>
+                                <colgroup>
+                                    <col />
+                                    <col width="120px" />
+                                </colgroup>
+                                <thead>
+                                    <tr><td>企业名称</td><td>操作</td></tr>
+                                </thead>
+								<tbody id="companyListBox"></tbody>
+                            </table>
+ <button class='btn btn-default' type='button' onclick='searchBox({"title":"企业","url":"{url:/company/select_company/type/radio}","callback":searchCompanyCallback});'>选择入职企业</button>
+                            <p class="help-block">入职企业（必选）</p>
+                        </td>
+                    </tr>
+                <tr>
+                        <th>岗位：</th>
+                        <td>
+                            <!--分类数据显示-->
+                            <span id="__categoryBox" style="margin-bottom:8px"></span>
+                            <button class="btn btn-default" type="button" name="_memberCategoryButton"><i class="fa fa-list"></i>设置岗位</button>
+                            {set:plugin::trigger('memberCategoryWidget',array("removeCallback"=>"removeCallback","afterCallback"=>"showExt","type"=>"checkbox","name" => "_member_category[]","value" => isset($companyWork['member_category']) ? $companyWork['member_category'] : ''))}
+                            <p class="help-block">必选</p>
+                        </td>
+                </tr>
+				<tr id="tzzy_code_tr" style="display: none">
+						<th>特种作业操作证书号：</th>
+						<td><input type="text" class="form-control" name="tzzy_code" pattern="required" /></td>
+				</tr>
+				<tr id="tzzy_c_time_tr" style="display: none">
+						<th>初领时间：</th>
+						<td>
+							<input type="text" id="tzzy_c_time" name='tzzy_c_time' class="form-control" empty pattern='date' autocomplete="off" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" placeholder="初领时间"/>
+						</td>
+				</tr>
+				<tr id="tzzy_h_time_tr" style="display: none">
+						<th>换证时间：</th>
+						<td>
+							<input type="text" id="tzzy_h_time" name='tzzy_h_time' class="form-control" empty pattern='date' autocomplete="off" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'#F{\$dp.\$D(\'tzzy_c_time\')}'})" placeholder="换证时间"/>
+						</td>
+				</tr>
+				<tr id="tzzy_f_time_tr" style="display: none">
+						<th>复审时间：</th>
+						<td>
+							<input type="text" name='tzzy_f_time' class="form-control" empty pattern='date' autocomplete="off" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'#F{\$dp.\$D(\'tzzy_c_time\')}',maxDate:'#F{\$dp.\$D(\'tzzy_h_time\')}'})" placeholder="复审时间"/>
+							<select name="is_check" class="form-control">
+								<option value="0">正常</option>
+								<option value="1">未复审</option>
+								<option value="2">已复审</option>
+							</select>
+						</td>
+				</tr>
+				<tr id="tzzy_img_tr" style="display: none">
+						<th>特种作业操作证书：</th>
+						<td>正面：<input type="file" name="tzzy_img" empty/>
+							<input type='hidden' name='_tzzy_img' value="{$companyWork['tzzy_img']}" />
+							<input type='hidden' name='_tzzy_img2' value="{$companyWork['tzzy_img2']}" />
+							{if:isset($companyWork['tzzy_img']) && $companyWork['tzzy_img']}
+							<p><img id="tzzy_img_id" src='{url:$companyWork['tzzy_img']}' style='width:220px;border:1px solid #ccc' /></p>
+							{/if}
+							反面：<input type="file" name="tzzy_img2" empty/>
+							{if:isset($companyWork['tzzy_img2']) && $companyWork['tzzy_img2']}
+							<p><img id="tzzy_img_id2" src='{url:$companyWork['tzzy_img2']}' style='width:220px;border:1px solid #ccc' /></p>
+							{/if}
+						</td>
+				</tr>
+				<tr id="aqzg_code_tr" style="display: none">
+						<th>安全合格证书号：</th>
+						<td><input type="text" class="form-control" name="aqzg_code" pattern="required" /></td>
+				</tr>
+				<tr id="aqzg_c_time_tr" style="display: none">
+						<th>初领时间：</th>
+						<td>
+							<input type="text" id="aqzg_c_time" name='aqzg_c_time' class="form-control" empty pattern='date' autocomplete="off" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" placeholder="初领时间"/>
+						</td>
+				</tr>
+				<tr id="aqzg_h_time_tr" style="display: none">
+						<th>换证时间：</th>
+						<td>
+							<input type="text" id="aqzg_h_time" name='aqzg_h_time' class="form-control" empty pattern='date' autocomplete="off" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'#F{\$dp.\$D(\'aqzg_c_time\')}'})" placeholder="换证时间"/>
+						</td>
+				</tr>
+				<tr id="aqzg_f_time_tr" style="display: none">
+						<th>复审时间：</th>
+						<td>
+							<input type="text" name='aqzg_f_time' class="form-control" empty pattern='date' autocomplete="off" onfocus="WdatePicker({dateFmt:'yyyy-MM'})" placeholder="复审时间"/>
+						</td>
+				</tr>
+				<tr id="aqzg_img_tr" style="display: none">
+						<th>安全合格证书：</th>
+						<td>正面：<input type="file" name="aqzg_img" empty/>
+							<input type='hidden' name='_aqzg_img' value="{$companyWork['aqzg_img']}" />
+							<input type='hidden' name='_aqzg_img2' value="{$companyWork['aqzg_img2']}" />
+							{if:isset($companyWork['aqzg_img']) && $companyWork['aqzg_img']}
+							<p><img id="aqzg_img_id" src='{url:$companyWork['aqzg_img']}' style='width:220px;border:1px solid #ccc' /></p>
+							{/if}
+						反面：<input type="file" name="aqzg_img2" empty/>
+							{if:isset($companyWork['aqzg_img2']) && $companyWork['aqzg_img2']}
+							<p><img id="aqzg_img_id2" src='{url:$companyWork['aqzg_img2']}' style='width:220px;border:1px solid #ccc' /></p>
+							{/if}
+						</td>
+				</tr>
+				<tr>
+					<th>电话：</th><td><input class="form-control" name="telephone" type="text" value="" empty pattern="phone" placeholder="固定座机号码如010-66668888-123" /><p class="help-block">格式：（地区号-）用户号（-分机号）如010-66668888-123</p></td>
+                </tr>
+                <tr>
+                        <th>邮箱：</th>
+                        <td><input type="text" class="form-control" name="email" pattern="email" empty /></td>
+                </tr>
+				<tr>
+					<th>地区：</th>
+					<td>
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <select name="province" class="form-control" child="city,area"></select>
+                            </div>
+                            <div class="col-xs-3">
+                                <select name="city" class="form-control" child="area"></select>
+                            </div>
+                            <div class="col-xs-3">
+                                <select name="area" class="form-control"></select>
+                            </div>
+                        </div>
+					</td>
+				</tr>
+				<tr>
+					<th>地址：</th><td><input class="form-control" name="contact_addr" type="text" value="" /></td>
+				</tr>
+				<tr>
+					<th>邮编：</th><td><input class="form-control" name="zip" type="text" value="" empty pattern="zip"  /></td>
+				</tr>
+				<tr>
+					<th>QQ：</th><td><input class="form-control" name="qq" type="text" value="" empty pattern="qq"  /></td>
+				</tr>
+				<tr>
+					<th>积分：</th><td><input class="form-control" name="point" type="text" value="" /></td>
+				</tr>
+				<tr>
+						<th>LOGO图：</th>
+						<td>
+							<input type='file' name='logo' />
+							<input type='hidden' name='_logo' value="{$userData['logo']}" />
+							{if:isset($userData['logo']) && $userData['logo']}
+							<p><img src='{url:$userData['logo']}' style='width:220px;border:1px solid #ccc' /></p>
+							{/if}
+						</td>
+				</tr>
+				<tr>
+					<th>账号状态：</th>
+					<td>
+						<select name="status" class="form-control">
+							<option value="1">正常</option>
+							<option value="2">删除</option>
+							<option value="3">锁定</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td></td><td><button class='btn btn-primary' type="submit" onclick="return checkForm()">确 定</button></td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
+</div>
+<!--文章模板-->
+<script type="text/html" id="companyItemTemplate">
+	<tr>
+		<td>
+			<input type='hidden' name='com_id' value='<%=templateData['com_id']%>' />
+			<img src="<%=webroot(templateData['logo'])%>" style="width:80px;" />
+			<%=templateData['name']%>
+		</td>
+		<td><a href="javascript:void(0)" onclick="$(this).parent().parent().remove();"><i class='operator fa fa-close'></i></a></td>
+	</tr>
+	</script>
+<script language="javascript">
+//DOM加载完毕
+$(function(){
+var areaInstance = new areaSelect('province');
+
+//修改模式
+var formObj = new Form('memberForm');
+formObj.init({echo:JSON::encode($userData)});
+
+//地区初始化
+{if:$userData && $userData['area']}
+{set:$area = explode(',',trim($userData['area'],','))}
+areaInstance.init({"province":"{$area[0]}","city":"{$area[1]}","area":"{$area[2]}"});
+{else:}
+areaInstance.init();
+{/if}
+
+{if:isset($companyWork)}
+var companyWork = {echo:JSON::encode($companyWork)};
+formObj.init(companyWork);
+
+if(companyWork.tzzy_code!=''){
+	$("input[name='tzzy_code']").val(companyWork.tzzy_code);
+	$("#tzzy_code_tr").show();
+}
+if(companyWork.aqzg_code!=''){
+	$("input[name='aqzg_code']").val(companyWork.aqzg_code);
+	$("#aqzg_code_tr").show();
+}
+var templateHTML = template.render('companyItemTemplate',{"templateData":companyWork});
+$('#companyListBox').append(templateHTML);
+{/if}
+var _combine = function(params){
+	var mobile = $('input[name=mobile]').val();
+    var true_name = $('input[name=true_name]').val();
+    var idcode = $('input[name=idcode]').val();
+	return {
+		query: params.query,
+		mobile: mobile,
+		true_name: true_name,
+		idcode: idcode
+	};
+}
+var _callback = function(value, index, object){
+	$('input[name=mobile]').val(object['mobile']);
+    $('input[name=true_name]').val(object['true_name']);
+    $('input[name=idcode]').val(object['idcode']);
+}
+$('input[name="mobile"]').autocompleter({callback:_callback,offset:'ret_data.ajax_auto',highlightMatches:true,cache:false,source: "{url:/api/tools/ajax_auto/data/mobile}",customValue:'mobile',combine: _combine});
+$('input[name="true_name"]').autocompleter({callback:_callback,offset:'ret_data.ajax_auto',highlightMatches:true,cache:false,source: "{url:/api/tools/ajax_auto/data/true_name}",customValue:'true_name',combine: _combine});
+$('input[name="idcode"]').autocompleter({callback:_callback,offset:'ret_data.ajax_auto',highlightMatches:true,highlightMatches:true,cache:false, source: "{url:/api/tools/ajax_auto/data/idcode}",customValue:'idcode',combine: _combine});
+
+$('.autocompleter').css('width',$('input[name="idcode"]').css('width'));
+window.onresize = function(){
+	$('.autocompleter').css('width',$('input[name="idcode"]').css('width'));
+};
+
+
+var $imageViewer = $('.form-table');
+$imageViewer.viewer({
+	filter:function(el){return el.id.indexOf("img_id")>0;}
+});
+});
+
+//输入筛选文章的条件
+function searchCompanyCallback(companyList)
+{
+	var result = [];
+	companyList.each(function()
+	{
+		var temp = $.parseJSON($(this).attr('data'));
+		result.push(temp);
+	});
+	$('#companyListBox').empty();
+	createCompanyList(result);
+}
+
+//创建文章数据
+function createCompanyList(companyList)
+{
+	for(var i in companyList)
+	{
+		var templateHTML = template.render('companyItemTemplate',{"templateData":companyList[i]});
+		$('#companyListBox').append(templateHTML);
+	}
+}
+
+function checkForm(){
+	var _member_category = $('input[name="_member_category[]"]');
+	if(_member_category.size()<1){
+		toastr.error("必须选择岗位");
+		return false;
+	}
+	var _com_id = $('input[name="com_id"]');
+	if(_com_id.size()<1){
+		toastr.error("必须选择企业");
+		return false;
+	}
+	return true;
+}
+
+function showExt(categoryObj){
+	var tzzy_code_show = false;
+	var aqzg_code_show = false;
+	for(var item in categoryObj)
+	{
+		var cate = categoryObj[item];
+		var ext = cate.ext_field;
+		if(ext.indexOf('tzzy_code')>-1){
+			tzzy_code_show = true;
+		}
+		if(ext.indexOf('aqzg_code')>-1){
+			aqzg_code_show = true;
+		}
+		var catinput = $("input[name='_member_category[]']").get(item);
+		$(catinput).attr("data-ext",ext);
+	}
+	if(tzzy_code_show){
+		$("#tzzy_code_tr").show();
+		$("#tzzy_c_time_tr").show();
+		$("#tzzy_h_time_tr").show();
+		$("#tzzy_f_time_tr").show();
+		$("#tzzy_img_tr").show();
+	}else{
+		$("#tzzy_code_tr").hide();
+		$("#tzzy_c_time_tr").hide();
+		$("#tzzy_h_time_tr").hide();
+		$("#tzzy_f_time_tr").hide();
+		$("#tzzy_img_tr").hide();
+		$("input[name='tzzy_code']").val('');
+	}
+	if(aqzg_code_show){
+		$("#aqzg_code_tr").show();
+		$("#aqzg_c_time_tr").show();
+		$("#aqzg_h_time_tr").show();
+	//	$("#aqzg_f_time_tr").show();
+		$("#aqzg_img_tr").show();
+	}else{
+		$("#aqzg_code_tr").hide();
+		$("#aqzg_c_time_tr").hide();
+		$("#aqzg_h_time_tr").hide();
+	//	$("#aqzg_f_time_tr").hide();
+		$("#aqzg_img_tr").hide();
+		$("input[name='aqzg_code']").val('');
+	}
+}
+
+function removeCallback(){
+	var catinput = $("input[name='_member_category[]']");
+	var tzzy_code_show = false;
+	var aqzg_code_show = false;
+	catinput.each(
+		function(i,cate){
+			var ext = $(cate).attr('data-ext');
+			if(ext.indexOf('tzzy_code')>-1){
+				tzzy_code_show = true;
+			}
+			if(ext.indexOf('aqzg_code')>-1){
+				aqzg_code_show = true;
+			}
+		}
+	)
+	if(tzzy_code_show){
+		$("#tzzy_code_tr").show();
+		$("#tzzy_c_time_tr").show();
+		$("#tzzy_h_time_tr").show();
+		$("#tzzy_f_time_tr").show();
+		$("#tzzy_img_tr").show();
+	}else{
+		$("#tzzy_code_tr").hide();
+		$("#tzzy_c_time_tr").hide();
+		$("#tzzy_h_time_tr").hide();
+		$("#tzzy_f_time_tr").hide();
+		$("#tzzy_img_tr").hide();
+		$("input[name='tzzy_code']").val('');
+	}
+	if(aqzg_code_show){
+		$("#aqzg_code_tr").show();
+		$("#aqzg_c_time_tr").show();
+		$("#aqzg_h_time_tr").show();
+	//	$("#aqzg_f_time_tr").show();
+		$("#aqzg_img_tr").show();
+	}else{
+		$("#aqzg_code_tr").hide();
+		$("#aqzg_c_time_tr").hide();
+		$("#aqzg_h_time_tr").hide();
+	//	$("#aqzg_f_time_tr").hide();
+		$("#aqzg_img_tr").hide();
+		$("input[name='aqzg_code']").val('');
+	}
+}
+</script>

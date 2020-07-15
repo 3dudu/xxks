@@ -1,0 +1,4 @@
+backup/*
+runtime/*
+upload/*
+config/config.php

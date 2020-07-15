@@ -1,0 +1,163 @@
+{js:areaSelect}
+<section class="reg_box col-sm-12 col-xs-12">
+	<section>
+		<form action="{url:/systemcom/com_reg_act}" method="post" class="form-horizontal" enctype='multipart/form-data' name="companyForm">
+			<div class="form-group">
+					<label for="admin_name" class="col-sm-3 col-md-4 control-label">登陆用户名：</label>
+					<div class="col-sm-6 col-md-4">
+					<input class="form-control" id="admin_name" name="admin_name" type="text" value="" pattern="required" placeholder="用于登录企业后台">
+				</div>
+			</div>
+			<div class="form-group">
+					<label for="password" class="col-sm-3 col-md-4 control-label">密码：</label>
+					<div class="col-sm-6 col-md-4">
+					<input class="form-control" id="password" name="password" type="password" bind='repassword' pattern="required" placeholder="登录密码">
+				</div>
+			</div>
+			<div class="form-group">
+					<label for="repassword" class="col-sm-3 col-md-4 control-label">确认密码：</label>
+					<div class="col-sm-6 col-md-4">
+					<input class="form-control" id="repassword" name="repassword" type="password" bind='password' pattern="required" placeholder="确认密码">
+				</div>
+			</div>
+			<div class="form-group">
+					<label for="name" class="col-sm-3 col-md-4 control-label">企业名称：</label>
+					<div class="col-sm-6 col-md-4">
+					<input class="form-control" id="name" name="name" type="text" value="" pattern="required" placeholder="企业完整名称">
+				</div>
+			</div>
+			<div class="form-group">
+					<label for="_companyCategoryButton" class="col-sm-3 col-md-4 control-label">所属行业：</label>
+					<div class="col-sm-6 col-md-4">
+						<!--分类数据显示-->
+						<span id="__categoryBox" style="margin-bottom:8px"></span>
+						<button id="_companyCategoryButton" class="btn btn-default" type="button" name="_companyCategoryButton"><i class="fa fa-list"></i>设置所属行业</button>
+						{set:plugin::trigger('companyCategoryWidget',array("type" => "checkbox","name" => "_company_category[]","value" => isset($this->company_category) ? $this->company_category : ""))}
+					</div>
+			</div>
+			<div class="form-group">
+					<label for="area" class="col-sm-3 col-md-4 control-label">区县：</label>
+					<div class="col-sm-6 col-md-4">
+						<select name="province" style="display: none" class="form-control" child="city,area,street"></select>
+						<select name="city" style="display: none" class="form-control" child="area,street"></select>
+						<select id="area" name="area" class="form-control w-auto" child="street" pattern='required'></select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="street" class="col-sm-3 col-md-4 control-label">乡镇街道：</label>
+				<div class="col-sm-6 col-md-4">
+					<select id="street" name="street" class="form-control w-auto" pattern='required'></select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="address" class="col-sm-3 col-md-4 control-label">详细地址：</label>
+			<div class="col-sm-6 col-md-4">
+				<input type="text" id="address" class="form-control" name="address" pattern="required" placeholder="详细地址">
+			</div>
+	</div>
+			<div class="form-group">
+					<label for="com_code" class="col-sm-3 col-md-4 control-label">企业注册号：</label>
+					<div class="col-sm-6 col-md-4">
+						<input type="text" id="com_code" class="form-control" name="com_code" pattern="required" placeholder="企业注册号">
+					</div>
+			</div>
+			<div class="form-group">
+					<label for="com_faren" class="col-sm-3 col-md-4 control-label">法人姓名：</label>
+					<div class="col-sm-6 col-md-4">
+							<input type="text" id="com_faren" class="form-control" name="com_faren" pattern="required" placeholder="法人姓名">
+					</div>
+			</div>
+			<div class="form-group">
+					<label for="mobile" class="col-sm-3 col-md-4 control-label">法人电话：</label>
+					<div class="col-sm-6 col-md-4">
+						<input type="text" id="mobile" class="form-control" name="mobile" pattern="mobi" placeholder="法人联系手机号码">
+					</div>
+			</div>
+
+			<div class="form-group">
+					<label for="com_worknum" class="col-sm-3 col-md-4 control-label">从业人数：</label>
+					<div class="col-sm-6 col-md-4">
+						<input type="text" id="com_worknum" class="form-control" name="com_worknum" pattern="int" placeholder="从业人数">
+					</div>
+			</div>
+			<div class="form-group">
+					<label for="com_managernum" class="col-sm-3 col-md-4 control-label">企业主要负责人数量：</label>
+					<div class="col-sm-6 col-md-4">
+						<input type="text" id="com_managernum" class="form-control" name="com_managernum" pattern="int" placeholder="企业主要负责人数量">
+					</div>
+			</div>
+			<div class="form-group">
+					<label for="com_securitynum" class="col-sm-3 col-md-4 control-label">安全管理人员数量：</label>
+					<div class="col-sm-6 col-md-4">
+						<input type="text" id="com_securitynum" class="form-control" name="com_securitynum" pattern="int" placeholder="安全管理人员数量">
+					</div>
+			</div>
+			<div class="form-group">
+					<label for="_jyfwCategoryButton" class="col-sm-3 col-md-4 control-label">经营范围：</label>
+					<div class="col-sm-6 col-md-4">
+						<!--分类数据显示-->
+						<span id="__jyfwcategoryBox" style="margin-bottom:8px"></span>
+						<button id="_jyfwCategoryButton" class="btn btn-default" type="button" name="_jyfwCategoryButton"><i class="fa fa-list"></i>选择经营范围</button>
+						{set:plugin::trigger('jyfwCategoryWidget',array("type" => "checkbox","name" => "_jyfw_category[]","value" => isset($this->jyfw_category) ? $this->jyfw_category : ""))}
+					</div>
+			</div>
+			<div class="form-group">
+					<label for="paper_img" class="col-sm-3 col-md-4 control-label">上传营业执照：</label>
+					<div class="col-sm-6 col-md-4">
+					<input type='file' onchange="upfile(this)" id="paper_img" style="display: none" name='paper_img' accept="image/png,image/gif,image/jpeg">
+					<label class="btn btn-default" id="upbtn" style="overflow: hidden;" for="paper_img" >请选择营业执照图片</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-3 col-md-4">
+				</div>
+				<div class="col-sm-6 col-md-4">
+					<input class="btn btn-success pull-left" type="submit" onclick="return checkForm()" value="立即申请">
+					<input class="btn btn-info pull-right" type="button" onclick="window.location.href='{url:systemcom/index}'" value="返回登录">
+				</div>
+			</div>
+		</form>
+	</section>
+</section>
+
+<script>
+	$(function()
+{
+	//修改模式
+	{if:$this->companyRow}
+	var formObj = new Form('companyForm');
+	formObj.init({echo:JSON::encode($this->companyRow)});
+	{/if}
+	//地区联动插件
+	var areaInstance = new areaSelect('province');
+	areaInstance.init({echo:JSON::encode($this->companyRow)});
+});
+
+function checkForm(){
+	var _company_category = $('input[name="_company_category[]"]');
+	if(_company_category.size()<1){
+		toastr.error("必须选择行业");
+		return false;
+	}
+	return true;
+}
+
+function upfile(obj){
+var filename = $(obj).val();
+if(filename==''){
+	$("#upbtn").text("请选择营业执照图片");
+	return;
+}
+var fs = filename.split('\\');
+if(fs.length>0){
+	filename = fs[fs.length-1];
+}else{
+	fs = filename.split('/');
+	if(fs.length>0){
+		filename = fs[fs.length-1];
+	}
+}
+$("#upbtn").text(filename);
+}
+
+</script>

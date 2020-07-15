@@ -1,0 +1,118 @@
+{js:my97date}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="#">咨询管理</a>
+		</li>
+		<li class="active">建议管理</li>
+	</ul>
+</div>
+
+<div class="content table-responsive">
+	<table class="table list-table table-striped table-hover  table-bordered">
+		<colgroup>
+			<col width="35px" />
+			<col width="100px" />
+			<col width="120px" />
+			<col width="120px" />
+			<col width="60px" />
+			<col />
+			<col width="160px" />
+			<col width="160px" />
+			<col width="110px" />
+		</colgroup>
+		<caption>
+            <a class="btn btn-default" onclick="selectAll('check[]')">
+                <i class="fa fa-check"></i>全选
+            </a>
+            <a class="btn btn-default" onclick="delModel({'form':'suggestion_list',msg:'确定要删除选中的记录吗？'})">
+                <i class="fa fa-close"></i>批量删除
+            </a>
+			<form class="form-inline" method="get" action="{url:/comment/suggestion_list}">
+				<input type="hidden" name="controller" value="comment"/>
+                <input type="hidden" name="action" value="suggestion_list"/>
+                <div class="input-group">
+					<span class="input-group-addon">咨询类型</span>
+					<select class="form-control" name="search[a.c_type=]">
+						<option value="">全部</option>
+						<option value="1">系统使用</option>
+						<option value="2">学习内容</option>
+						<option value="3">答题考试</option>
+					</select>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon">手机</span>
+                    <input class="form-control" name="search[b.mobile=]"  type="text" value="" />
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon">建议人</span>
+                    <input class="form-control" name="search[b.true_name=]"  type="text" value="" />
+                </div>
+
+                <div class="input-group">
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                    <input class="form-control" name="search[a.time>=]"  type="text" value="" autocomplete="off" onfocus="WdatePicker()" placeholder="开始时间" />
+                </div>
+
+                <div class="input-group">
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                    <input class="form-control" name="search[a.time<=]"  type="text" value="" autocomplete="off" onfocus="WdatePicker()" placeholder="截止时间"  />
+                </div>
+
+				<button class="btn btn-default" type="submit">
+				    <i class="fa fa-search"></i> 筛选
+				</button>
+			</form>
+		</caption>
+		<thead>
+			<tr>
+				<th></th>
+				<th>建议人</th>
+				<th>手机</th>
+				<th>企业</th>
+				<th>类型</th>
+				<th>内容</th>
+				<th>建议时间</th>
+				<th>回复时间</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+
+        <form action="{url:/comment/suggestion_del}" method="post" name="suggestion_list" onsubmit="return checkboxCheck('check[]','尚未选中任何记录！')">
+		<tbody>
+            {foreach:items=$this->query->find()}
+			<tr>
+				<td><input name="check[]" type="checkbox" value="{$item['id']}" /></td>
+				<td><a href="{url:/member/member_edit/uid/$item['user_id']}">{$item['true_name']}</a></td>
+				<td><a href="{url:/member/member_edit/uid/$item['user_id']}">{$item['mobile']}</a></td>
+				<td><a href="{url:/company/company_edit/id/$item['c_id']}">{$item['c_name']}</a></td>
+				<td>{if:$item['c_type']==1}系统{elseif:$item['c_type']==2}学习{elseif:$item['c_type']==3}考试{/if}</td>
+				<td><a href="{url:/comment/suggestion_edit/id/$item['id']}">{$item['content']}</a></td>
+				<td>{$item['time']}</td>
+				<td>{if:$item['re_time']>0}{$item['re_time']}{else:}未回复{/if}</td>
+				<td>
+					<a href="{url:/comment/suggestion_edit/id/$item['id']}"><i class='operator fa fa-edit'></i></a>
+					<a onclick="delModel({link:'{url:/comment/suggestion_del/check/$item['id']}'})"><i class='operator fa fa-close'></i></a>
+				</td>
+			</tr>
+			{/foreach}
+		</tbody>
+		</form>
+	</table>
+	{$this->query->getPageBar()}
+</div>
+
+<script type="text/javascript">
+$(function()
+{
+	var searchData = {echo:JSON::encode(IReq::get('search'))};
+	for(var index in searchData)
+	{
+		$('[name="search['+index+']"]').val(searchData[index]);
+	}
+})
+</script>

@@ -1,0 +1,400 @@
+{js:fileUpload}
+{js:jqueryViewer}
+
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">考试</a>
+		</li>
+		<li>
+			<a href="#">题目管理</a>
+		</li>
+		<li class="active">编辑题目</li>
+	</ul>
+</div>
+
+<div class="content table-responsive">
+	<form action='{url:/exam/question_edit_act}' method='post' name='question' class="form-horizontal" enctype="multipart/form-data" >
+		<input type='hidden' name='id' value="" />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+            </colgroup>
+            <th>题库分类：</th>
+				<td>
+					<select name="poolid" class="form-control w-auto" pattern="required" alt="请选择分类值" >
+					<option value="0">无分类</option>
+					{foreach:items=Api::run('getQuestionPoolAll')}
+						<option value="{$item['id']}">{$item['title']}</option>
+					{/foreach}
+					</select>
+					<a href="{url:/exam/question_pool_edit}">添加题库分类</a>
+					<p class="help-block">*选择题库所属分类（必填）</p>
+			</td>
+			<tr>
+				<th>难度：</th>
+				<td>
+					<select class="form-control w-auto" name="level" pattern="required" alt="请选择难度">
+						<option value='1'>1</option>
+						<option value='2'>2</option>
+						<option value='3'>3</option>
+						<option value='4'>4</option>
+						<option value='5'>5</option>
+						<option value='6'>6</option>
+						<option value='7'>7</option>
+						<option value='8'>8</option>
+						<option value='9'>9</option>
+						<option value='10'>10</option>
+					</select>
+				</td>
+            </tr>
+            <tr>
+                    <th>行业分类：</th>
+                    <td>
+                        <!--分类数据显示-->
+                        <span id="__categoryBox" style="margin-bottom:8px"></span>
+                        <button class="btn btn-default" type="button" name="_companyCategoryButton"><i class="fa fa-list"></i>设置分类</button>
+                        {set:plugin::trigger('companyCategoryWidget',array("type" => "checkbox","name" => "_company_category[]","value" => isset($questionRow['company_category']) ? $questionRow['company_category'] : ""))}
+                        <a href='{url:/company/category_edit}'>添加新行业</a>  <label>必选</label>
+
+                    </td>
+                </tr>
+            <tr>
+            <tr>
+                    <th>岗位：</th>
+                    <td>
+                        <!--分类数据显示-->
+                        <span id="__memberCategoryBox" style="margin-bottom:8px"></span>
+                        <button class="btn btn-default" type="button" name="_memberCategoryButton"><i class="fa fa-list"></i>设置岗位</button>
+                        {set:plugin::trigger('memberCategoryWidget',array("idArea"=>"__memberCategoryBox","type"=>"checkbox","name" => "_member_category[]","value" => isset($questionRow['member_category']) ? $questionRow['member_category'] : ''))}
+                        <a href='{url:/member/category_edit}'>添加新岗位</a> <label>必选</label>
+                    </td>
+            </tr>
+			<tr>
+				<th>类型：</th>
+				<td>
+                        <select class="form-control w-auto" name="type" pattern="required" alt="请选择题型" onchange="changeType(this)">
+                            <option value=''>请选择题型</option>
+                            <option value='1'>判断</option>
+                            <option value='2'>单选</option>
+                            <option value='3'>多选</option>
+                            <option value='4'>填空</option>
+                          <!--
+                              <option value='5'>问答</option>
+                            --> 
+                        </select>
+                </td>
+			</tr>
+			<tr>
+				<th>问题：</th>
+				<td>
+                    <textarea class='form-control' name='question' value='' pattern="required"></textarea>
+				</td>
+            </tr>
+            <tr>
+                    <th>图片：</th>
+                    <td>
+                        <input type='file' name='thumb' />
+                        {if:isset($questionRow['thumb']) && $questionRow['thumb']}
+                        <p><img src='{url:$questionRow['thumb']}' style='width:220px;border:1px solid #ccc' /></p>
+                        {/if}
+                    </td>
+            </tr>
+            <tr>
+                    <th>题项：</th>
+                    <td>
+                    <div class="col-md-12" id="q_item"></div>
+                    </td>
+            </tr>
+            <tr>
+                    <th>讲解：</th>
+                    <td>
+                        <textarea class='form-control' name='explain' value='' ></textarea>
+                    </td>
+            </tr>
+			
+			</tr>
+			<tr>
+				<th></th><td><button class='btn btn-primary' type='submit' onclick="return checkForm()">确定</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+				<!--图片模板-->
+<script type='text/html' id='itemTemplate'>
+    <div class="input-group row">
+        <input type="hidden" name="item_file[]" id="item_file_<%=item_index%>" value="<%=item_file%>" class='form-control'/>
+        <span class="input-group-addon">
+        <input type="<%=item_type%>" name="item_value[]" value="<%=item_value%>" pattern="required"
+        <%if(isCheck){%>
+            checked="true"
+        <%}%>/>
+        </span>
+        <span class="input-group-addon" id="basic-addon1"><%=item_value%></span>
+        <input type="text" name="item_content[]" value="<%=item_content%>"  class='form-control' />
+        <span class="input-group-btn">
+            <label class="btn btn-default" for="fileUpload_<%=item_index%>" type="button">图片</label>
+        </span>
+    </div>
+    <input style="display:none" data-id="<%=item_index%>" id="fileUpload_<%=item_index%>" type="file" accept="image/png,image/gif,image/jpeg" name="_goodsFile" multiple="multiple" data-url="{url:/study/study_img_upload}" />
+    <div class="row">
+        <p class="help-block" id="uploadPercent_<%=item_index%>"></p>
+    </div>
+</script>
+<script type='text/html' id='picTemplate'>
+    <div class='pic pull-left'>
+        <img name="picThumb" class="img-thumbnail" style="width:100px;height:100px" src="<%=webroot(picRoot)%>" alt="<%=picRoot%>" />
+        <p class="text-center">
+            <a href='javascript:;' onclick="$(this).parents('.pic').remove();$('#item_file_<%=item_index%>').val('')"><i class="operator fa fa-close" title="删除"></i></a>
+        </p>
+    </div>
+</script>
+<script type='text/html' id='pdTemplate'>
+    <div class="input-group row">
+    <label class="radio-inline"><input type="radio" name="item_value" value="1"
+        <%if(answer == 1){%>
+            checked="true"
+        <%}%>/>正确</label>
+    <label class="radio-inline"><input type="radio" name="item_value" value="0"
+        <%if(answer == 0){%>
+            checked="true"
+        <%}%>/>错误</label>
+    </div>
+</script>
+
+<script type='text/html' id='qaTemplate'>
+    <div class="input-group row">
+    <input type="text" name="answer" readonly="readonly" value="<%=answer%>"  class='form-control' />
+    <span class="input-group-btn">
+        <input type="button" value="答案"  class='form-control' onclick="insertAtCaret(this)"/>
+    </span>
+        <span class="input-group-btn">
+    <input type="button" value="清空"  class='form-control' onclick="resetAnswer()"/>
+    </span>
+    </div>
+</script>
+
+<script type='text/javascript'>
+var questionData = {answer:''};
+var answerCache = {};
+var selectType = 0;
+var $imageViewer = null;
+jQuery(function(){
+    {if:isset($questionRow)}
+    questionData = {echo:JSON::encode($questionRow)};
+    {/if}
+
+    var FromObj = new Form('question');
+    FromObj.init(questionData);
+    var item_type = $("select[name='type']").val();
+    selectType = item_type;
+    if(item_type==2 || item_type==3){
+        initSelectItem(item_type);
+    }else if(item_type==1){
+        initCheckItem();
+    }else if(item_type==4){
+        initQAItem();
+    }
+    $imageViewer = $('.img-thumbnail');
+    $imageViewer.viewer({
+        filter:function(el){
+            return el.name=='picThumb';
+        }
+    });
+});
+
+function  initCheckItem(){
+    var picHtml = template.render('pdTemplate',{'answer':questionData.answer});
+    $('#q_item').append(picHtml);
+}
+function  initQAItem(){
+    var picHtml = template.render('qaTemplate',{'answer':questionData.answer});
+    $('#q_item').append(picHtml);
+}
+
+function initSelectItem(item_type){
+    var items = questionData.items||[];
+    for(var index in items)
+    {
+        var item = items[index];
+        item.isCheck = questionData.answer.indexOf(item.item_value)>=0;
+        item.item_index = index;
+        item.item_type = item_type==2?'radio':'checkbox';
+        var itemHtml = template.render('itemTemplate',item);
+        $('#q_item').append(itemHtml);
+        if(item.item_file){
+            var picHtml = template.render('picTemplate',{'picRoot':item.item_file,'item_index':index});
+            $('#uploadPercent_'+index).html(picHtml);
+        }
+    }
+    fileListen();
+}
+
+function changeType(obj){
+    var item_type = $(obj).val();
+    answerCache[selectType]=$('#q_item').html();
+    if(item_type==2 || item_type==3){
+        if(selectType==2||selectType==3){
+            //直接变换checkbox
+            var item_type_name = item_type==2?'radio':'checkbox';
+            $("input[name='item_value[]']").attr("type",item_type_name);
+        }else{
+            //保存数据
+            $('#q_item').empty();
+            if(answerCache[item_type]!=undefined){
+                $('#q_item').append(answerCache[item_type]);
+            }else{
+                initSelectItem(item_type);
+            }
+        }
+    }else if(item_type==1){
+        $('#q_item').empty();
+        if(answerCache[item_type]!=undefined){
+            $('#q_item').append(answerCache[item_type]);
+        }else{
+            initCheckItem();
+        }
+    }else if(item_type==4){
+        $('#q_item').empty();
+        if(answerCache[item_type]!=undefined){
+            $('#q_item').append(answerCache[item_type]);
+        }else{
+            initQAItem();
+        }
+    }else{
+        $('#q_item').empty();
+    }
+    selectType=item_type;
+}
+//提交表单前的检查
+function checkForm()
+{
+	return true;
+}
+
+function fileListen(){
+//jquery图片上传
+$('[name="_goodsFile"]').fileupload({
+    dataType: 'json',
+    done: function (e, data)
+    {
+        var efile = e.target;
+        var index = $(efile).attr("data-id");
+    	if(data.result && data.result.flag == 1)
+    	{
+    	    //{'flag','img','list','show'}
+    	    var picJson = data.result;
+        	var picHtml = template.render('picTemplate',{'picRoot':picJson.img,'item_index':index});
+            $('#uploadPercent_'+index).html(picHtml);
+            $('#item_file_'+index).val(picJson.img);
+            $imageViewer = $('.img-thumbnail');
+            $imageViewer.viewer({
+                filter:function(el){
+                    return el.name=='picThumb';
+                }
+            });
+    	}
+    	else
+    	{
+    		toastr.error(data.result.error);
+    		$('#uploadPercent_'+index).text(data.result.error);
+    	}
+    },
+    progressall: function (e, data)
+    {
+        var efile = e.target;
+        var index = $(efile).attr("data-id");
+        var progress = parseInt(data.loaded / data.total * 100);
+        $('#uploadPercent_'+index).text("加载完成："+progress+"%");
+    }
+});
+}
+function checkForm(){
+    /*
+    var _company_category = $('input[name="_company_category[]"]');
+	if(_company_category.size()<1){
+		toastr.error("必须选择行业");
+		return false;
+    }
+    
+	var _member_category = $('input[name="_member_category[]"]');
+	if(_member_category.size()<1){
+		toastr.error("必须选择岗位");
+		return false;
+    }
+    */
+    var item_type = $("select[name='type']").val();
+    if(item_type==2 || item_type==3){
+        if($("input[name='item_content[]']").val()==''){
+            toastr.error("请至少配置一条题项");
+		    return false;
+        }
+    }
+    
+    if(item_type==4){
+        var answer = $("input[name='answer']");
+        if(answer.val()==''){
+            toastr.error("请设置答案");
+		    return false;
+        }
+    }
+
+	return true;
+}
+
+function insertAtCaret(curObj){
+    var question = $("textarea[name='question']");
+    var _question = question[0];
+    var answer = $("input[name='answer']");
+    if(_question.selectionStart || _question.selectionStart=='0'){
+        var startPos=_question.selectionStart;
+        var endPos=_question.selectionEnd;
+        if(startPos==endPos){
+            toastr.error("请在问题中选中答案部分");
+        }else{
+            var value=question.val();
+            var answer_str = value.substring(startPos,endPos);
+            var k = "";
+            for(var i=0;i<endPos-startPos;i++){
+                k += '#';
+            }
+            if(answer_str.indexOf('#')>-1){
+                toastr.error("答案中不要选中占位符 # ");
+                return;
+            }
+            var brefore_str = value.substring(0,startPos);
+            var after_str = value.substring(endPos);
+            value=brefore_str+k+after_str;
+            question.val(value);
+
+            var brefore_len = brefore_str.replace(/[^#]/g,"").length;
+            var after_len = after_str.replace(/[^#]/g,"").length;
+            var _answer = answer.val();
+            answer.val( _answer.substring(0,brefore_len)+answer_str+_answer.substring(brefore_len));
+            question.focus();
+        }
+    }
+}
+
+function resetAnswer(){
+    var question = $("textarea[name='question']");
+    var answer = $("input[name='answer']");
+    var _answer = answer.val();
+    var _question = question.val();
+    while(_question.indexOf('#')>-1){
+        if(_answer.length>0){
+            var r = _answer.substr(0,1);
+            _answer = _answer.substring(1);
+        }else{
+            var r = '';
+        }
+        _question = _question.replace('#',r);
+    }
+    question.val(_question);
+    answer.val('');
+}
+
+</script>

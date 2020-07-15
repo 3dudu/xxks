@@ -1,0 +1,95 @@
+{js:my97date} 
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">统计</a>
+		</li>
+		<li>
+			<a href="#">统计日志</a>
+		</li>
+		<li class="active">积分记录</li>
+	</ul>
+</div>
+
+<div class="content table-responsive">
+		<form name="searchexam" action="{url:/market/point_list}" method="get" class="pull-right form-inline" style="margin:0">
+			<input type="hidden" name="controller" value="market"/>
+			<input type="hidden" name="action" value="point_list"/>
+			<div class="input-group">
+				<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+				<input class="form-control" name="startDate"  type="text" value="{$this->startDate}" autocomplete="off" onfocus="WdatePicker()" placeholder="开始时间" />
+			</div>
+
+			<div class="input-group">
+				<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+				<input class="form-control" name="endDate"  type="text" value="{$this->endDate}" autocomplete="off" onfocus="WdatePicker()" placeholder="截止时间"  />
+			</div>
+			
+			用户 <input type="text" name='true_name'  class="form-control"  value='{$this->true_name}' class="small" />
+			用户id <input type="text" name='user_id'  class="form-control"  value='{$this->user_id}' class="small" />
+			
+			<select  class="form-control"  name="event">
+				<option value="" selected>全部</option>
+				<option value="achieve" {if:IReq::get('event')=='achieve'}selected{/if}>成就</option>
+				<option value="event" {if:IReq::get('event')=='event'}selected{/if}>事件</option>
+				<option value="exchange" {if:IReq::get('event')=='exchange'}selected{/if}>兑换</option>
+			</select>
+			<button class="btn" type="submit"><span class="sch">搜 索</span></button>
+		</form>
+	<table class="table list-table table-striped table-hover  table-bordered">
+		<colgroup>
+			<col width="60px" />
+			<col width="190px" />
+			<col width="190px" />
+			<col width="190px" />
+			<col />
+			<col width="50px" />
+			<col width="80px" />
+			<col width="150px" />
+		</colgroup>
+<caption>
+</caption>
+		<thead>
+			<tr>
+				<th>用户id</th>
+				<th>会员账号</th>
+				<th>会员姓名</th>
+				<th>在职公司</th>
+				<th>内容</th>
+				<th>类型</th>
+				<th>积分</th>
+				<th>时间</th>
+			</tr>
+		</thead>
+
+		<tbody>
+
+			{foreach:items = $this->pointList}
+			<tr>
+				<td>{$item['user_id']}</td>
+				<td>
+						<img src='{url:/pic/thumb/w/100/h/100/img/$item[logo]}' width="30" height="30" class='ico' />
+					{$item['nickname']}</td>
+				<td>{$item['mobile']}</td>
+				<td>{$item['c_name']}</td>
+				<td>{$item['intro']}</td>
+				<td>
+					{if:strpos($item['event'],'study')!==false}
+					学习
+					{elseif:strpos($item['event'],'login')!==false}
+					登录
+					{elseif:strpos($item['event'],'exam')!==false}
+					考试
+					{else:}
+					其他
+					{/if}
+				</td>
+				<td>{$item['value']}</td>
+				<td>{$item['datetime']}</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+	{$this->pointObj->getPageBar()}
+</div>

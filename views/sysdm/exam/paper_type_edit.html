@@ -1,0 +1,347 @@
+{js:fileUpload}
+{js:jqueryViewer}
+
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">考试</a>
+		</li>
+		<li>
+			<a href="#">考试类型管理</a>
+		</li>
+		<li class="active">编辑考试类型</li>
+	</ul>
+</div>
+
+<div class="content table-responsive">
+	<form action='{url:/exam/paper_type_edit_act}' method='post' name='paperType' class="form-horizontal" enctype="multipart/form-data">
+		<input type='hidden' name='id' value="" />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+			<tr>
+				<th>名称：</th>
+				<td><input type='text' name='title' class='form-control' value='' pattern='required' placeholder='标题不能为空' /></td>
+			</tr>
+			<tr>
+                    <th>图片：</th>
+                    <td>
+                        <input type='file' name='logo' />
+                        {if:isset($paperType['logo']) && $paperType['logo']}
+                        <p><img src='{url:$paperType['logo']}' style='width:220px;border:1px solid #ccc' /></p>
+                        {/if}
+                    </td>
+			</tr>
+			<tr>
+			<th>题库分类：</th>
+			<td>
+				{foreach:items=Api::run('getQuestionPoolAll')}
+				<label class="checkbox-inline">
+					<input type='checkbox' {if:isset($paperType) && in_array($item['id'],explode(',',$paperType['poolid']))}checked=checked{/if} name='poolid[]' value='{$item['id']}' />{$item['title']}</label>
+					{/foreach}
+				<label class="checkbox-inline">
+					<input type='checkbox' name='poolid[]' value='0' {if:isset($paperType) && in_array('0',explode(',',$paperType['poolid']))}checked=checked{/if} />未分类</label>
+				<p class="help-block">*如果不设置表示不限<a href="{url:/exam/question_pool_edit}">添加题库分类</a></p>
+			</td>
+		</tr>
+			<tr>
+					<th>是否显示：</th>
+					<td>
+						<label class='radio-inline'><input type='radio' name='visibility' value='1' checked=checked />是</label>
+						<label class='radio-inline'><input type='radio' name='visibility' value='0' />否</label>
+					</td>
+			</tr>
+			<tr>
+				<th>模式：</th>
+				<td>
+					<select name="mode" class="form-control w-auto">
+						<option value="1">自由模式</option>
+						<option value="2">周期模式</option>
+						<option value="3">专项模式</option>
+						<option value="4">挑战模式</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+					<th>自动出试卷：</th>
+					<td>
+						<label class='radio-inline'><input type='radio' name='c_paper' value='1' />是</label>
+						<label class='radio-inline'><input type='radio' name='c_paper' value='0' checked='checked' />否</label>
+					</td>
+				</tr>
+			<tr>
+				<th>自动生成周期：</th>
+					<td>
+						<select name="c_priod" class="form-control w-auto">
+							<option value="1">日</option>
+							<option value="2">周</option>
+							<option value="3">月</option>
+						</select>
+					</td>
+			</tr>
+			<tr>
+				<th>考试时长：</th>
+				<td><div class="input-group">
+					<input type='text' name='times' class='form-control' value='' /><span class="input-group-addon">分钟，0不限时</span>
+				</div>
+				</td>
+			</tr>
+			<tr>
+				<th>题目是否固定：</th>
+				<td>
+					<label class='radio-inline'><input type='radio' name='fix_paper' value='1'/>固定</label>
+					<label class='radio-inline'><input type='radio' name='fix_paper' value='0' checked=checked />随机</label>
+					<p class="help-block">*固定：试卷一生成，可多次答题，但题目不变，随机：试卷题目每次答题都随机生成</p>
+				</td>
+			</tr>
+			<tr>
+					<th>难度：</th>
+					<td>
+						<select class="form-control w-auto" name="level" pattern="required" alt="请选择难度">
+							<option value='1'>1</option>
+							<option value='2'>2</option>
+							<option value='3'>3</option>
+							<option value='4'>4</option>
+							<option value='5'>5</option>
+							<option value='6'>6</option>
+							<option value='7'>7</option>
+							<option value='8'>8</option>
+							<option value='9'>9</option>
+							<option value='10'>10</option>
+						</select>
+					</td>
+			</tr>
+			<tr>
+					<th>题目范围：</th>
+					<td>
+						<label class='checkbox-inline'><input type='checkbox' name='q_scope[]' value='1'/>匹配行业</label>
+						<label class='checkbox-inline'><input type='checkbox' name='q_scope[]' value='2'/>匹配岗位</label>
+						<p class="help-block">*根据用户的公司行业和岗位匹配题目</p>
+					</td>
+			</tr>
+			<tr>
+				<th>题型组合：</th>
+				<td>
+						<div class="col-md-12" id="q_item">
+								<div class="input-group row">
+										<span class="input-group-addon">
+										<input type="checkbox" name="type_value[]" value="0" pattern="required" onclick="selectAll(this);sumScores()">
+										任意
+										</span>
+										<span class="input-group-addon" id="basic-addon1">数量</span>
+										<select name="type_num[]" class="form-control" onchange="sumScores()">
+										{for: $upto=100}
+											<option value="{$i}">{$i}</option>
+										{/for}
+										</select>
+										<span class="input-group-addon" id="basic-addon1">分值</span>
+										<select name="type_point[]" class="form-control" onchange="sumScores()">
+												{for: $upto=10}
+												<option value="{$i}">{$i}</option>
+												{/for}
+										</select>
+							</div>
+							<div class="input-group row">
+								<span class="input-group-addon">
+								<input type="checkbox" name="type_value[]" value="2" pattern="required" onclick="sumScores()">
+								单选
+								</span>
+								<span class="input-group-addon" id="basic-addon1">数量</span>
+								<select name="type_num[]" class="form-control" onchange="sumScores()">
+									{for: $upto=100}
+									<option value="{$i}">{$i}</option>
+								{/for}
+								</select>
+								<span class="input-group-addon" id="basic-addon1">分值</span>
+								<select name="type_point[]" class="form-control" onchange="sumScores()">
+									{for: $upto=10}
+									<option value="{$i}">{$i}</option>
+									{/for}
+								</select>
+							</div>
+							<div class="input-group row">
+								<span class="input-group-addon">
+								<input type="checkbox" name="type_value[]" value="3" pattern="required" onclick="sumScores()">
+								多选
+								</span>
+								<span class="input-group-addon" id="basic-addon1">数量</span>
+								<select name="type_num[]" class="form-control" onchange="sumScores()">
+									{for: $upto=100}
+									<option value="{$i}">{$i}</option>
+									{/for}
+								</select>
+								<span class="input-group-addon" id="basic-addon1">分值</span>
+								<select name="type_point[]" class="form-control" onchange="sumScores()">
+									{for: $upto=10}
+									<option value="{$i}">{$i}</option>
+									{/for}
+								</select>
+							</div>
+							<div class="input-group row">
+									<span class="input-group-addon">
+									<input type="checkbox" name="type_value[]" value="1" pattern="required" onclick="sumScores()">
+									判断
+									</span>
+									<span class="input-group-addon" id="basic-addon1">数量</span>
+									<select name="type_num[]" class="form-control" onchange="sumScores()">
+										{for: $upto=100}
+										<option value="{$i}">{$i}</option>
+										{/for}
+									</select>
+									<span class="input-group-addon" id="basic-addon1">分值</span>
+									<select name="type_point[]" class="form-control" onchange="sumScores()">
+										{for: $upto=10}
+										<option value="{$i}">{$i}</option>
+										{/for}
+									</select>
+							</div>
+							<div class="input-group row">
+									<span class="input-group-addon">
+									<input type="checkbox" name="type_value[]" value="4" pattern="required" onclick="sumScores()">
+									填空
+									</span>
+									<span class="input-group-addon" id="basic-addon1">数量</span>
+									<select name="type_num[]" class="form-control" onchange="sumScores()">
+										{for: $upto=100}
+										<option value="{$i}">{$i}</option>
+										{/for}
+									</select>
+									<span class="input-group-addon" id="basic-addon1">分值</span>
+									<select name="type_point[]" class="form-control" onchange="sumScores()">
+										{for: $upto=10}
+										<option value="{$i}">{$i}</option>
+										{/for}
+									</select>
+							</div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+					<th>每题时长：</th>
+					<td><div class="input-group">
+							<input type='text' name='c_times' class='form-control' value='' /><span class="input-group-addon">秒，0不限时</span>
+					</div></td>
+				</tr>
+			<tr>
+			<tr>
+					<th>题量：</th>
+					<td><input type='text' name='num' readonly="readonly" class='form-control' value='' /></td>
+				</tr>
+			<tr>
+			<tr>
+					<th>总分：</th>
+					<td><input type='text' name='score' readonly="readonly" class='form-control' value='' /></td>
+			</tr>
+			<tr>
+				<th>计分周期：</th>
+				<td>
+					<select name="score_priod" class="form-control w-auto">
+						<option value="1">日</option>
+						<option value="2">周</option>
+						<option value="3">月</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th>总分上限：</th>
+				<td><input type='text' name='maxScore' class='form-control' value='' />
+					<p class="help-block">同一个测试类型，在一个周期内获得的积分上限，0或不填表示没有积分上限。同一个测试可重复答题，相同试题在一个周期内不重复积分，以首次答案为准。</p>
+				</td>
+			</tr>
+			
+			<tr>
+				<th>排序：</th>
+				<td><input type='text' class='form-control' name='sort' value='' /></td>
+			</tr>
+			<tr>
+				<th>描述简要：</th><td><textarea class='form-control' name='description' value='' ></textarea></td>
+			</tr>
+			
+			<tr>
+				<th></th><td><button class='btn btn-primary' type='submit' onclick="return checkForm()">确定</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+
+<script type='text/javascript'>
+jQuery(function(){
+	
+	var FromObj = new Form('paperType');
+	{if:isset($paperType)}
+	FromObj.init({echo:JSON::encode($paperType)});
+	var types = {echo:JSON::encode($paperType['types'])};
+	var allType = $('input[name="type_value[]"]');
+	var allType_num = $('select[name="type_num[]"]');
+	var allType_point = $('select[name="type_point[]"]');
+	for(var index=0;index<types.length;index++){
+		var item = types[index];
+		if(item.type_num>0){
+			allType[index].checked=true;
+		}
+		$(allType_num[index]).val(item.type_num);
+		$(allType_point[index]).val(item.type_point);
+		if(item.type_value==0 && item.type_num>0){
+			allType.each(
+		function(index,item){
+			if(index>0){
+				item.disabled = 'disabled';
+				allType_num.get(index).disabled = 'disabled';
+				allType_point.get(index).disabled = 'disabled';
+			}
+		}
+		);
+		break;
+		}
+	}
+	{/if}
+	
+});
+function sumScores(){
+	var scores = 0;
+	var num = 0;
+	var allType = $('input[name="type_value[]"]');
+	var allType_num = $('select[name="type_num[]"]');
+	var allType_point = $('select[name="type_point[]"]');
+	allType.each(
+		function(index,item){
+			if(item.checked==true && item.disabled==false){
+				scores += $(allType_num[index]).val()*$(allType_point[index]).val();
+				num += parseInt($(allType_num[index]).val());
+			}
+		}
+	)
+	$("input[name='num']").val(num);
+	$("input[name='score']").val(scores);
+}
+function selectAll(obj){
+	var allType = $('input[name="type_value[]"]');
+	var allType_num = $('select[name="type_num[]"]');
+	var allType_point = $('select[name="type_point[]"]');
+	if(obj.checked){
+		allType.each(
+		function(index,item){
+			if(index>0){
+				item.disabled = 'disabled';
+				allType_num.get(index).disabled = 'disabled';
+				allType_point.get(index).disabled = 'disabled';
+			}
+		}
+		);
+	}else{
+		allType.each(
+		function(index,item){
+			if(index>0){
+				item.disabled = '';
+				allType_num.get(index).disabled = '';
+				allType_point.get(index).disabled = '';
+			}
+		}
+		);
+	}
+}
+</script>

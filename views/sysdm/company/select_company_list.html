@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>企业检索列表</title>
+{js:jquery}
+{js:dialog}
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+</head>
+<body>
+<div class="container" style="min-width:620px;margin-top:10px;height:550px;overflow-y:scroll">
+	<table class="table table-bordered table-striped table-hover  table-bordered">
+		<colgroup>
+			<col />
+			<col width="80px" />
+			<col width="80px" />
+			<col width="80px" />
+		</colgroup>
+		<thead>
+				<tr>
+					<th>企业名</th>
+					<th>执照号</th>
+					<th>法人</th>
+					<th>联系方式</th>
+				</tr>
+			</thead>
+		<tbody>
+			{if:$this->data}
+			{foreach:items = $this->data}
+			<tr>
+				<td>
+						<label>
+							<input type='{$this->type}' name='id[]' value="{$item['id']}" id="company{$key}" />
+							{$item['name']}
+						</label>
+						<script>$("#company{$key}").attr('data',JSON.stringify({echo:JSON::encode($item)}));</script>
+				</td>
+				<td>{$item['com_code']}</td>
+				<td>{$item['com_faren']}</td>
+				<td>{$item['mobile']}</td>
+			</tr>
+			{/foreach}
+			{else:}
+			<tr>
+				<td colspan="4">对不起，没有找到相关企业</td>
+			</tr>
+			{/if}
+		</tbody>
+	</table>
+</div>
+</body>
+</html>

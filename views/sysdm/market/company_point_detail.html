@@ -1,0 +1,189 @@
+{set:
+	$start = IFilter::act(IReq::get('start'));
+	$end   = IFilter::act(IReq::get('end'));
+	$countData = statistics::company_point_detail($start,$end,$this->admin['level']?'':$this->admin['area']);
+}
+
+{js:my97date}
+{js:chart}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">统计</a>
+		</li>
+		<li>
+			<a href="#">基础数据统计</a>
+		</li>
+		<li class="active">企业得分统计</li>
+	</ul>
+</div>
+<div class="content table-responsive">
+	<form action='{url:/market/company_point_detail}' method='get' class="form-inline" name="searchForm">
+
+		<div class="input-group">
+			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+			<input type="text" name='start' class="form-control" value='{$start}' pattern='date' empty autocomplete="off" onfocus="WdatePicker()" placeholder="起始时间"/>
+		</div>
+
+		<div class="input-group">
+			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+			<input type="text" name='end' pattern='date' value='{$end}' class="form-control" empty autocomplete="off" onfocus="WdatePicker()" placeholder="结束时间"/>
+		</div>
+
+		<button class="btn btn-default" type="submit" >
+		    <i class="fa fa-search"></i> 查询
+		</button>
+
+	</form>
+
+	<div class="box" style="margin-top:20px">
+		<div class="box-header">
+			查看一个时间周期内每个时间段学习得分情况，反应一个阶段内的学习变化情况！
+		</div>
+		<div class="box-body">
+			<div id="myChart" style="min-height:550px;"></div>
+		</div>
+	</div>
+</div>
+
+<script type='text/javascript'>
+//图表生成
+$(function()
+{
+
+var itemStyle = {
+    normal: {
+    },
+    emphasis: {
+        barBorderWidth: 1,
+        shadowBlur: 10,
+        shadowOffsetX: 0,
+        shadowOffsetY: 0,
+        shadowColor: 'rgba(0,0,0,0.5)'
+    }
+};
+	//图标模板
+	var option = {
+        baseOption:{
+        timeline: {
+            axisType: 'category',
+            autoPlay: true,
+            playInterval: 2000,
+            data: [],
+            label: {
+                formatter : function(s) {
+                    return s;
+                }
+            }
+        },
+        tooltip : {   },
+        legend: {
+            data: ['学习','考试','其他']
+        },
+        toolbox: {
+            show: true,
+            feature: {
+                dataView: {readOnly: false},
+                magicType: {
+                    type: ['stack', 'tiled']
+                },
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+        grid: {
+            left: '2%',
+            right: '5%',
+            bottom: '12%',
+            containLabel: true,
+            tooltip: {}
+        },
+        visualMap: {
+            type: 'continuous',
+            dimension: 0,
+            text: ['高分', '低分'],
+            inverse: true,
+            itemHeight: 300,
+            calculable: true,
+            min: 0,
+            max: 6,
+            top: 60,
+            right: 10,
+            inRange: {
+                colorLightness: [0.7, 0.3]
+            },
+            outOfRange: {
+                color: '#bbb'
+            },
+            controller: {
+                inRange: {
+                    color: '#2f4554'
+                }
+            }
+        },
+        xAxis:  {
+            type: 'value',
+            name: '积分',
+            silent: false,
+            axisLine: {onZero: true},
+        },
+        yAxis: {
+            type: 'category',
+            inverse: true,
+            data: []
+        },
+		series:[
+            {name: '学习', stack: '总量',type: 'bar',itemStyle: itemStyle},
+            {name: '考试', stack: '总量',type: 'bar',itemStyle: itemStyle},
+            {name: '其他', stack: '总量',type: 'bar',itemStyle: itemStyle}
+        ]
+        },
+        options:[]
+    };
+    var all_time = {echo:JSON::encode(array_keys($countData))};
+    option.baseOption.timeline.data = all_time;
+    var max_point = 20;
+    var all_com = [];
+    var all_datas = {echo:JSON::encode(array_values($countData))};
+    var _options = [];
+    for(var i=0;i<all_datas.length;i++){
+        var datedatas = all_datas[i];
+        var study = [];
+        var exam = [];
+        var other = [];
+        for(var com_name in datedatas){
+            if(i==0){
+                all_com.push(com_name);
+            }
+            if(datedatas[com_name]['学习']>max_point){
+                max_point = datedatas[com_name]['学习'];
+            }
+            if(datedatas[com_name]['考试']>max_point){
+                max_point = datedatas[com_name]['考试'];
+            }
+            if(datedatas[com_name]['其他']>max_point){
+                max_point = datedatas[com_name]['其他'];
+            }
+            study.push({name:com_name,value:datedatas[com_name]['学习']});
+            exam.push({name:com_name,value:datedatas[com_name]['考试']});
+            other.push({name:com_name,value:datedatas[com_name]['其他']});
+        }
+        
+       
+        _options.push({
+            title:{text: all_time[i]+'数据'},
+            series:[
+                {data: study},
+                {data: exam},
+                {data: other}
+            ]
+        })
+    }
+    option.baseOption.visualMap.max = max_point;
+    option.baseOption.yAxis.data = all_com;
+    option.options = _options;
+	echarts.init(document.getElementById('myChart')).setOption(option);
+});
+
+</script>

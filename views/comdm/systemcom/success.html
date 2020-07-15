@@ -1,0 +1,17 @@
+<div class="jumbotron">
+        <h1>提交成功！</h1>
+        <p>欢迎申请加入{$this->_siteConfig->name}！我们将尽快核实您提交的信息，请耐心等待。</p>
+        <p><a class="btn btn-primary btn-lg" href="{url:systemcom/index}" role="button">立即登录</a></p>
+        
+    </div>
+    <div class="media">
+        <div class="media-body media-bottom text-right">
+          <h4 class="media-heading"> </h4>
+          扫码或微信搜索'天天题库'关注公众号！ 
+        </div>
+            <div class="media-right media-bottom">
+                {if:$this->_siteConfig->wxcode}
+                <img style="width: 120px" src="{webroot:$this->_siteConfig->wxcode}" alt="扫码进入学习平台"" class="media-object">
+                {/if}              
+            </div>
+    </div>

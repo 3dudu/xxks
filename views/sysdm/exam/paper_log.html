@@ -1,0 +1,113 @@
+{js:my97date}
+
+<div class="breadcrumbs" id="breadcrumbs">
+        <ul class="breadcrumb">
+            <li>
+                <i class="home-icon fa fa-home"></i>
+                <a href="#">考试</a>
+            </li>
+            <li>
+                <a href="#">考试管理</a>
+            </li>
+            <li class="active">考试记录</li>
+        </ul>
+    </div>
+    <div class="content table-responsive">
+            <form name="searchexam" action="{url:/exam/paper_log}" method="get" class="pull-right form-inline" style="margin:0">
+                <input type="hidden" name="controller" value="exam"/>
+                <input type="hidden" name="action" value="paper_log"/>
+                <div class="input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                        <input class="form-control" name="search[r.create_time>=]"  type="text" value="" autocomplete="off" onfocus="WdatePicker()" placeholder="开始时间" />
+                    </div>
+    
+                    <div class="input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                        <input class="form-control" name="search[r.end_time<=]"  type="text" value="" autocomplete="off" onfocus="WdatePicker()" placeholder="截止时间"  />
+                    </div>
+                <select class="form-control" name="search[like]">
+                    <option value="p.title">考试名称</option>
+                    <option value="m.true_name">用户</option>
+                    <option value="m.mobile">手机</option>
+                    <option value="c.name">公司名</option>
+                </select>
+                <input class="form-control" name="search[likeValue]" type="text" value=""/>
+               
+                <button class="btn btn-default" type="submit">
+                    <i class="fa fa-search"></i>搜 索
+                </button>
+            </form>
+            <table class="table list-table table-striped table-hover  table-bordered">
+                <colgroup>
+                    <col width="35px" />
+                    <col width="120px" />
+                    <col width="60px" />
+                    <col width="160px" />
+                    <col />
+                    <col width="100px" />
+                    <col width="100px" />
+                    <col width="60px" />
+                    <col width="60px" />
+                    <col width="160px" />
+                    <col width="160px" />
+                    <col width="100px" />
+                </colgroup>
+                <caption>
+                    <a class="btn btn-default" onclick="selectAll('id[]')">
+                        <i class="fa fa-check"></i>全选
+                    </a>
+                  
+                </caption>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>姓名</th>
+                        <th>手机</th>
+                        <th>企业</th>
+                        <th>试卷</th>
+                        <th>用时</th>
+                        <th>题数</th>
+                        <th>得分</th>
+                        <th>完成</th>
+                        <th>开始时间</th>
+                        <th>结束时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <form action="{url:/exam/paper_type_del}" method="post" name="paper_type" onsubmit="return checkboxCheck('id[]','尚未选中任何记录！')">
+                <tbody>
+                    {foreach:items=$this->query->find()}
+                    <tr class="{echo:($item['score']==0) ? 'warning':'success'}">
+                        <td><input type="checkbox" name="id[]" value="{$item['id']}" /></td>
+                        <td>{$item['nickname']}</td>
+                        <td>{$item['mobile']}</td>
+                        <td>{$item['name']}</td>
+                        <td>{$item['title']}</td>
+                        <td>{$item['times']}/{$item['totaltimes']}</td>
+                        <td>{$item['rightnum']}/{$item['totalnum']}</td>
+                        <td>{$item['score']}</td>
+                        <td>{echo:($item['did']==1) ? '是':'否'}</td>
+                        <td>{$item['create_time']}</td>
+                        <td>{$item['end_time']}</td>
+                        <td>
+                            <a href='{url:/exam/question_log/search[r.recordid]/=$item['id']}'><i class='operator fa fa-eye'></i></a>
+                        </td>
+                    </tr>
+                    {/foreach}
+                </tbody>
+            </table>
+        </form>
+        {$this->query->getPageBar()}
+    </div>
+
+    <script language="javascript">
+            //预加载
+            $(function(){
+                var searchData = {echo:JSON::encode(IReq::get('search'))};
+                for(var index in searchData)
+                {
+                    $('[name="search['+index+']"]').val(searchData[index]);
+                }
+            })
+    </script>
+    

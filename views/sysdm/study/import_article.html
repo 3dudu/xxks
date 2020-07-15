@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>导入文章</title>
+{js:jquery}
+{js:dialog}
+{set:$aid = IFilter::act(IReq::get('aid'))}
+
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+</head>
+<body style="width:500px;min-height:220px;overflow-y:hidden;">
+	<div class="container">
+		<ul class="list-group">
+			<li class="list-group-item">1、此功能可以直接导入文章到您的系统中</li>
+			<li class="list-group-item">
+				<form action="{url:/study/importArticle}" method="post">
+					<div class="form-group">
+						<label for="name">微信文章地址</label>
+						<input name="aid" type="hidden" value="{$aid}" />
+						<input class="form-control" name="url" type="text" />
+					</div>
+				</form>
+			</li>
+		</ul>
+	</div>
+</body>
+</html>

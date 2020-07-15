@@ -1,0 +1,130 @@
+<div class="breadcrumbs" id="breadcrumbs">
+		<ul class="breadcrumb">
+			<li>
+				<i class="home-icon fa fa-home"></i>
+				<a href="#">系统</a>
+			</li>
+			<li>
+				<a href="#">积分规则</a>
+			</li>
+			<li class="active">规则列表</li>
+		</ul>
+</div>
+
+<div class="content table-responsive">
+	<form method='post' action=''>
+		<table id="list_table" class="table list-table">
+					<colgroup>
+				<col width="150px" />
+			    <col width="60px" />
+				<col width="60px" />
+				<col width="160px" />
+				<col width="60px" />
+				<col width="60px" />
+				<col width="60px" />
+				<col width="60px" />
+				<col width="120px" />
+				<col width="120px" />
+				<col width="100px" />
+			</colgroup>
+			<caption>
+					<a class="btn btn-default" href='{url:/pointconf/event_edit}'>
+						<i class="fa fa-plus"></i>添加规则
+					</a>
+					</caption>
+			<thead>
+				<tr>
+					<th>名称</th>
+					<th>类型</th>
+					<th>周期</th>
+					<th>事件</th>
+					<th>状态</th>
+					<th>分值</th>
+					<th>分值类型</th>
+					<th>开始时间</th>
+					<th>结束时间</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{query:name=event order=sort asc}
+				<tr>
+					<td>{$item['name']}</td>
+					<td>
+					{if:$item['event_type'] == 1}
+					单次
+					{elseif:$item['event_type'] == 2}
+					多次
+					{else:}
+					周期
+					{/if}</td>
+					<td>
+					{if:$item['event_type'] == 3}
+					{if:$item['priedtype'] == 1}
+					天
+					{elseif:$item['priedtype'] == 2}
+					周
+					{else:}
+					月
+					{/if}
+					{/if}
+					</td>
+					<td>{$item['event']}</td>
+					<td>{echo:($item['status']==0) ? '关闭':'开启'}</td>
+					<td>{$item['point']}</td>
+					<td>
+						{if:$item['point_type'] == 0}
+						{$this->_siteConfig->goldName}
+						{elseif:$item['point_type'] == 1}
+						{$this->_siteConfig->wawabiName}
+						{/if}</td>
+					<td>{$item['start_date']}</td>
+					<td>{$item['end_date']}</td>
+					<td><input class="form-control" id="s{$item['id']}" size="2" type="text" onblur="toSort({$item['id']});" value="{$item['sort']}" /></td>
+					<td>
+						<a href='{url:/pointconf/event_edit/id/$item[id]}'>
+							<i class='operator fa fa-edit'></i>
+						</a>
+	{if:$item['status'] == 1}
+	<a href='javascript:void(0)' onclick="delModel({msg:'是否要禁用事件？',link:'{url:/pointconf/event_status/status/is_close/id/$item[id]}'});">
+							<i class='operator fa fa-stop-circle'></i>
+						</a>
+
+						
+					
+	{else:}
+					<a href='javascript:void(0)' onclick="delModel({msg:'是否要启用事件？',link:'{url:/pointconf/event_status/status/is_open/id/$item[id]}'});">
+						<i class='operator fa fa-play-circle'></i>
+					</a>
+	{/if}
+	<a href='javascript:void(0)' onclick="delModel({link:'{url:/pointconf/event_del/id/$item[id]}'});">
+		<i class='operator fa fa-close'></i>
+	</a>
+					</td>
+				</tr>
+				{/query}
+			</tbody>
+		</table>
+	</form>
+</div>
+<script language="javascript">
+function toSort(id)
+{
+	if(id!='')
+	{
+		var va = $('#s'+id).val();
+		var part = /^\d+$/i;
+		if(va!='' && va!=undefined && part.test(va))
+		{
+			$.get("{url:/pointconf/event_sort}",{'id':id,'sort':va}, function(data)
+			{
+				if(data=='1')
+				{
+					toastr.success('修改成功');
+				}
+			});
+		}
+	}
+}
+</script>
