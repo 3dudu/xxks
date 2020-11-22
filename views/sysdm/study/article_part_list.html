@@ -1,0 +1,150 @@
+<div class="breadcrumbs" id="breadcrumbs">
+        <ul class="breadcrumb">
+            <li>
+                <i class="home-icon fa fa-home"></i>
+                <a href="#">学习</a>
+            </li>
+            <li>
+                <a href="#">内容管理</a>
+            </li>
+            <li class="active">内容列表</li>
+        </ul>
+    </div>
+
+    <div class="content table-responsive">
+            <form name="searchform" action="{url:/study/article_part_list}" method="get" class="pull-right form-inline" style="margin:0">
+                <input type="hidden" name="controller" value="study"/>
+            <input type="hidden" name="action" value="article_part_list"/>
+                <input type='hidden' name='aid' value='{$this->aid}' />
+                <input type='hidden' name='search[like]' value='r.title' />
+                
+                <select class="form-control w-auto" name="search[a.category_id=]" alt="请选择栏目值">
+                    <option value=''>选择内容栏目</option>
+                    {foreach:items=Api::run('getArticleCategoryListAll')}
+                    <option value='{$item['id']}'>{echo:str_repeat('&nbsp;&nbsp;&nbsp;',substr_count($item['path'],',')-2)}{$item['name']}</option>
+                    {/foreach}
+                </select>
+                标题:<input class="form-control" name="search[likeValue]" type="text" value=""/>
+                <button class="btn btn-default" type="reset">
+                    <i class="fa fa-close"></i>还 原
+                </button>
+                <button class="btn btn-default" type="submit">
+                    <i class="fa fa-search"></i>搜 索
+                </button>
+            </form>
+            <table class="table list-table table-striped table-hover  table-bordered">
+                <colgroup>
+                    <col width="35px" />
+                    <col />
+                    <col />
+                    <col width="150px" />
+                    <col width="60px" />
+                    <col width="60px" />
+                    <col width="60px" />
+                    <col width="60px" />
+                    <col width="110px" />
+                </colgroup>
+                <caption>
+                    <a class="btn btn-default" href='{url:/study/article_list}'>
+                        <i class="fa fa-reply"></i>返回列表
+                    </a>
+                    {if:isset($this->aid)}
+                    <a class="btn btn-default" href='{url:/study/article_part_edit/aid/$this->aid}'>
+                        <i class="fa fa-plus"></i>添加章节
+                    </a>
+                    <a class="btn btn-default" onclick="localUpload();">
+                        <i class="fa fa-upload"></i>导入公众号文章
+                    </a>
+                    {/if}
+                    <a class="btn btn-default" onclick="selectAll('id[]')">
+                        <i class="fa fa-check"></i>全选
+                    </a>
+                    <a class="btn btn-default" onclick="delModel({'form':'article',msg:'确定要删除所选中的章节？'})">
+                        <i class="fa fa-close"></i>批量删除
+                    </a>
+                    <a class="btn btn-default" onclick="delModel({'form':'article','link':'{url:/study/article_part_change}',msg:'转换章节为资料？'})">
+                        <i class="fa fa-close"></i>批量转换
+                    </a>
+                </caption>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>章节标题</th>
+                        <th>资料标题</th>
+                        <th>发布时间</th>
+                        <th>阅读量</th>
+                        <th>点赞量</th>
+                        <th>展示</th>
+                        <th>排序</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <form action="{url:/study/article_part_del}" method="post" name="article">
+                    <input type='hidden' name='aid' value='{$this->aid}' />
+                <tbody>
+                    {foreach:items=$this->query->find()}
+                    <tr>
+                        <td><input type="checkbox" name="id[]" value="{$item['id']}" /></td>
+                        <td><a target="_blank" href='{url:/site/articleView/id/$item['aid']/part_id/$item['id']}' title="{$item['title']}">{echo:Article::subTitle($item['title'])}</a></td>
+                        <td title="{$item['a_name']}">{echo:Article::subTitle($item['a_name'])}</td>
+                        <td>{$item['create_time']}</td>
+                        <td>{$item['article_readnum']}</td>
+                        <td>{$item['article_likenum']}</td>
+                        <td>{echo:($item['visibility']==1) ? '是':'否'}</td>
+                        <td>{$item['sort']}</td>
+                        <td>
+                            <a href='{url:/study/article_part_edit/id/$item['id']/aid/$item['aid']}'><i class='operator fa fa-edit'></i></a>
+                            <a href="javascript:delModel({link:'{url:/study/article_part_del/id/$item['id']/aid/$item['aid']}'});"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    {/foreach}
+                </form>
+                </tbody>
+            </table>
+            {$this->query->getPageBar()}
+    </div>
+    <script language="javascript">
+    //预加载
+    $(function(){
+        var formObj = new Form('searchform');
+        formObj.init({echo:JSON::encode($this->searchform)})
+        var searchData = {echo:JSON::encode(IReq::get('search'))};
+        for(var index in searchData)
+        {
+            $('[name="search['+index+']"]').val(searchData[index]);
+        }
+    })
+    
+
+//本地上传附件
+function localUpload()
+{
+	art.dialog.open('{url:/study/import_article/aid/$this->aid}',{
+		id:'import_wechat',
+		title:'导入文章',
+		ok:function(iframeWin, topWin){
+	    	var formObject = iframeWin.document.forms[0];
+	    	formObject.submit();
+	    	loadding();
+	    	return false;
+		},
+		okVal:'导入'
+	});
+}
+
+//上传成功
+function uploadSuccess()
+{
+	window.location.reload();
+}
+
+//上传失败
+function uploadFail(error)
+{
+	unloadding();
+	var msg = error ? error : "导入失败";
+	toastr.error(msg);
+	art.dialog({id:'import_wechat'}).close();
+}
+
+    </script>

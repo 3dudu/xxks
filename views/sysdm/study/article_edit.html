@@ -1,0 +1,268 @@
+{js:fileUpload}
+{js:jqueryViewer}
+{js:my97date}
+
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">学习</a>
+		</li>
+		<li>
+			<a href="#">内容管理</a>
+		</li>
+		<li class="active">编辑内容</li>
+	</ul>
+</div>
+
+<div class="content table-responsive">
+	<form action='{url:/study/article_edit_act}' method='post' name='article'>
+		<input type='hidden' name='id' value="" />
+		<input type='hidden' name="img" value="" />
+		<input type='hidden' name="_imgList" value="" />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+			<tr>
+				<th>栏目：</th>
+				<td>
+					<select class="form-control w-auto" name="category_id" pattern="required" alt="请选择栏目值">
+						<option value=''>选择内容栏目</option>
+						{foreach:items=Api::run('getArticleCategoryListAll')}
+						<option value='{$item['id']}'>{echo:str_repeat('&nbsp;&nbsp;&nbsp;',substr_count($item['path'],',')-2)}{$item['name']}</option>
+						{/foreach}
+					</select>
+					<a href="{url:/study/article_cat_edit}">添加内容栏目</a>
+					<p class="help-block">*选择内容所属栏目（必填）</p>
+				</td>
+			</tr>
+			<tr>
+				<th>标题：</th>
+				<td><input type='text' name='title' class='form-control' value='' pattern='required' placeholder='标题不能为空' /></td>
+			</tr>
+			<tr>
+				<th>发布日期：</th>
+				<td><input type='text' autocomplete="off" name='create_time_v' class="form-control" pattern='datetime' autocomplete="off" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value='' pattern='required' placeholder='展示发布日期不能为空' />
+					<p class="help-block">*展示发布日期（必填）</p>
+				</td>
+			</tr>
+			<tr>
+				<th>媒体：</th>
+				<td><input type='text' class='form-control' name='wechatname' value='' />
+				</td>
+			</tr>
+			<tr>
+				<th>作者：</th>
+				<td><input type='text' class='form-control' name='author' value='' />
+				</td>
+			</tr>
+			<tr>
+				<th>是否发布：</th>
+				<td>
+					<label class='radio-inline'><input type='radio' name='visibility' value='1' checked=checked />是</label>
+					<label class='radio-inline'><input type='radio' name='visibility' value='0' />否</label>
+				</td>
+			</tr>
+			<tr>
+				<th>首页推荐：</th>
+				<td>
+					<label class='radio-inline'><input type='radio' name='top' value='1' checked=checked />是</label>
+					<label class='radio-inline'><input type='radio' name='top' value='0' />否</label>
+				</td>
+			</tr>
+			<tr>
+				<th>学习时长：</th>
+				<td><input type='text' class='form-control' name='mintime' pattern="int" value='' />
+					<p class="help-block">*最小1分钟，默认2分钟</p>
+				</td>
+			</tr>
+			<!--
+
+			<tr>
+				<th>标题字体：</th>
+				<td>
+					<label class='radio-inline'><input type='radio' name='style' value='0' checked=checked />正常</label>
+					<label class='radio-inline'><input type='radio' name='style' value='1' /><b>粗体</b></label>
+					<label class='radio-inline'><input type='radio' name='style' value='2' /><span style="font-style:oblique;">斜体</span></label>
+				</td>
+			</tr>
+			<tr>
+				<th>标题颜色：</th>
+				<td>
+					{set:$color = (isset($articleRow) && isset($articleRow['color']) && $articleRow['color']) ? $articleRow['color'] : '#000000'}
+					<input type='hidden' name='color' value='' />
+					<a style='color:{$color};background-color:{$color};' href='javascript:showColorBox();' id='titleColor'>{$color}</a>
+					<div id='colorBox' style='display:none'></div>
+				</td>
+			</tr>
+			-->
+			<tr>
+				<th>排序：</th>
+				<td><input type='text' class='form-control' name='sort' value='' /></td>
+			</tr>
+			<tr>
+				<th>关键词：</th><td><input type='text' class='form-control' name='keywords' value='' /></td>
+			</tr>
+			<tr>
+				<th>描述简要：</th><td><textarea class='form-control' name='description' value='' ></textarea></td>
+			</tr>
+			<tr>
+				<th>内容海报：</th>
+				<td>
+					<input id="fileUpload" type="file" accept="image/png,image/gif,image/jpeg" name="_goodsFile" multiple="multiple" data-url="{url:/study/study_img_upload}" />
+					<p class="help-block" id="uploadPercent">可以上传多张图片，分辨率3000px以下，大小不得超过{echo:IUpload::getMaxSize()}</p>
+				</td>
+			</tr>
+			<tr class="form-group"><th></th><td>
+				<div  class="col-md-10" id="thumbnails"></div>
+			</td>
+				<!--图片模板-->
+				<script type='text/html' id='picTemplate'>
+				<div class='pic pull-left'>
+					<img name="picThumb" onclick="defaultImage(this);" class="img-thumbnail" style="width:100px;height:100px" src="<%=webroot(picRoot)%>" alt="<%=picRoot%>" />
+					<p class="text-center">
+						<a href='javascript:;' onclick="$(this).parents('.pic').insertBefore($(this).parents('.pic').prev());"><i class="operator fa fa-backward" title="左移动"></i></a>
+						<a href='javascript:;' onclick="$(this).parents('.pic').remove();"><i class="operator fa fa-close" title="删除"></i></a>
+						<a href='javascript:;' onclick="$(this).parents('.pic').insertAfter($(this).parents('.pic').next());"><i class="operator fa fa-forward" title="右移动"></i></a>
+					</p>
+				</div>
+				</script>
+			</tr>
+			<tr>
+				<th></th><td><button class='btn btn-primary' type='submit' onclick="return checkForm()">确定</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+
+<script type='text/javascript'>
+jQuery(function(){
+	//调色板颜色
+	var colorBox = new Array('#000','#930','#330','#030','#036','#930','#000080','#339','#333','#800000','#f60','#808000','#808080','#008080','#00f','#669','#f00','#f90','#9c0','#396','#3cc','#36f','#800080','#999','#f0f','#fc0','#ff0','#0f0','#0ff','#0cf','#936','#c0c0c0','#f9c','#fc9','#ff9','#cfc','#cff','#9cf','#c9f','#fff');
+	for(color in colorBox)
+	{
+		var aHTML = '<a href="javascript:void(0)" onclick="changeColor(this);" style="display:inline-block;width:60px;background-color:'+colorBox[color]+';color:'+colorBox[color]+'">'+colorBox[color]+'</a> ';
+		$('#colorBox').html($('#colorBox').html() + aHTML);
+	}
+
+	var FromObj = new Form('article');
+	{if:isset($articleRow)}
+	FromObj.init({echo:JSON::encode($articleRow)});
+
+	//文章图片的回填
+	{if:isset($articleRow['photo'])}
+	var articlePhoto = {echo:JSON::encode($articleRow['photo'])};
+	for(var item in articlePhoto)
+	{
+		var picHtml = template.render('picTemplate',{'picRoot':articlePhoto[item].img});
+		$('#thumbnails').append(picHtml);
+	}
+	{/if}
+
+	//文章默认图片
+	{if:isset($articleRow['img']) && $articleRow['img']}
+	$('#thumbnails img[name="picThumb"][alt="{echo:$articleRow['img']}"]').addClass('current');
+	{/if}
+	{/if}
+
+	var $imageViewer = $('#thumbnails');
+	$imageViewer.viewer({
+		filter:function(el){
+			return el.name=='picThumb';
+		}
+	});
+});
+
+//弹出调色板
+function showColorBox()
+{
+	var layer = document.createElement('div');
+	layer.className = "poplayer";
+	$(document.body).append(layer);
+	var poplay = $('#colorBox');
+	$('.poplayer').bind("click",function(){if(poplay.css('display')=='block') poplay.fadeOut();$("div").remove('.poplayer');})
+	poplay.fadeIn();
+}
+
+//选择颜色
+function changeColor(obj)
+{
+	var color = $(obj).html();
+	$('#titleColor').css({color:color,'background-color':color});
+	$('input[type=hidden][name="color"]').val(color);
+	$('#colorBox').fadeOut();
+	$("div").remove('.poplayer');
+}
+
+
+/**
+ * 设置文章默认图片
+ */
+ function defaultImage(_self)
+{
+	$('#thumbnails img[name="picThumb"]').removeClass('current');
+	$(_self).addClass('current');
+}
+
+//提交表单前的检查
+function checkForm()
+{
+	//整理文章图片
+	var goodsPhoto = [];
+	$('#thumbnails img[name="picThumb"]').each(function(){
+		goodsPhoto.push(this.alt);
+	});
+	if(goodsPhoto.length > 0)
+	{
+		$('input[name="_imgList"]').val(goodsPhoto.join(','));
+		$('input[name="img"]').val($('#thumbnails img[name="picThumb"][class="current"]').attr('alt'));
+	}
+	return true;
+}
+
+
+//jquery图片上传
+$('[name="_goodsFile"]').fileupload({
+    dataType: 'json',
+    done: function (e, data)
+    {
+    	if(data.result && data.result.flag == 1)
+    	{
+    	    //{'flag','img','list','show'}
+    	    var picJson = data.result;
+        	var picHtml = template.render('picTemplate',{'picRoot':picJson.img});
+        	$('#thumbnails').append(picHtml);
+
+        	//默认设置第一个为默认图片
+        	if($('#thumbnails img[name="picThumb"][class="current"]').length == 0)
+        	{
+        		$('#thumbnails img[name="picThumb"]:first').addClass('current');
+        	}
+
+			if($imageViewer){
+					$imageViewer.update();
+				}else{
+					var $imageViewer = $('#thumbnails');
+					$imageViewer.viewer({
+						filter:function(el){
+							return el.name=='picThumb';
+						}
+					});
+			}
+    	}
+    	else
+    	{
+    		toastr.error(data.result.error);
+    		$('#uploadPercent').text(data.result.error);
+    	}
+    },
+    progressall: function (e, data)
+    {
+        var progress = parseInt(data.loaded / data.total * 100);
+        $('#uploadPercent').text("加载完成："+progress+"%");
+    }
+});
+</script>

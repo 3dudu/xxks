@@ -1,0 +1,93 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">学习</a>
+		</li>
+		<li>
+			<a href="#">内容管理</a>
+		</li>
+		<li class="active">编辑栏目</li>
+	</ul>
+</div>
+
+<div class="content table-responsive">
+	<form action='{url:/study/cat_edit_act}' method='post' name='cat' enctype="multipart/form-data">
+		<input type='hidden' name='id' value='' />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>上级栏目：</th>
+				<td>
+					{set:$id = isset($this->catRow['id']) ? $this->catRow['id'] : 0}
+					<select class="form-control" name="parent_id" pattern="required" alt="请选择栏目值">
+						<option value='0'>顶级栏目</option>
+						{foreach:items=Api::run('getArticleCategoryListAll')}
+						<option value='{$item['id']}'>{echo:str_repeat('&nbsp;&nbsp;&nbsp;',substr_count($item['path'],',')-2)}{$item['name']}</option>
+						{/foreach}
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th>名称：</th>
+				<td>
+					<input type='text' class='form-control' name='name' value='' pattern='required' />
+				</td>
+			</tr>
+			<tr>
+				<th>类型：</th>
+				<td>
+					<select name="cat_type" class="form-control" >
+						<option value="1">学习</option>
+						<option value="2">专题</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+					<th>LOGO图：</th>
+					<td>
+						<input type='file' name='logo' />
+						{if:isset($this->catRow['logo']) && $this->catRow['logo']}
+						<p><img src='{url:$this->catRow['logo']}' style='width:220px;border:1px solid #ccc' /></p>
+						{/if}
+					</td>
+				</tr>
+			<tr>
+				<th>是否系统栏目：</th>
+				<td>
+					<label class='radio-inline'><input type='radio' name='issys' value='0' checked=checked />否</label>
+					<label class='radio-inline'><input type='radio' name='issys' value='1' />是</label>
+					<p class="help-block">系统栏目前台不展示，仅作为不可见的内容栏目，主要是给管理员归纳内容使用的</p>
+				</td>
+			</tr>
+			<tr>
+				<th>排序：</th>
+				<td>
+					<input type='text' class='form-control' name='sort' value='' pattern='int' placeholder='请填写一个数字' />
+				</td>
+			</tr>
+
+				<tr>
+					<th>标题(SEO)：</th><td><input type='text' class='form-control' name='title' value='' /></td>
+				</tr>
+				<tr>
+					<th>关键词(SEO)：</th><td><input type='text' class='form-control' name='keywords' value='' /></td>
+				</tr>
+				<tr>
+					<th>描述简要(SEO)：</th><td><input type='text' class='form-control' name='description' value='' /></td>
+				</tr>
+			<tr>
+				<th></th><td><button class='btn btn-primary' type='submit'>确定</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+var FromObj = new Form('cat');
+FromObj.init({echo:JSON::encode($this->catRow)});
+</script>

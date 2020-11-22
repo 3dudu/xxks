@@ -1,0 +1,19 @@
+<div class="fart-rich-primary">
+		<div class="fart-rich-title" id="art_title_2">{$this->articlePartRow['title']}</div>
+		<div class="fart-rich-mate">
+			<div class="fart-rich-mate-text" id="art_date_v">{$this->articlePartRow['create_time_v']}</div>
+			<div class="fart-rich-mate-text" id="art_author">{$this->_siteConfig->name}</div>
+			<div class="fart-rich-mate-text href" id="art_mp">{$this->articleRow['wechatname']}</div>
+		</div>
+		<div class="fart-rich-content" id="preview-content">
+				{$this->articlePartRow['content']}
+		</div>
+		<div class="fart-rich-tool">
+			<div class="fart-rich-tool-text"><i class="fa fa-eye"></i></div>
+			<div class="fart-rich-tool-text" id="art_read"> {$this->articleRow['article_readnum']}</div>
+			<div class="fart-rich-tool-text"><i class="fa fa-thumbs-up text-danger"></i></div>
+			<div class="fart-rich-tool-text">
+				<span id="art_like"> {$this->articleRow['article_likenum']}</span>
+			</div>
+		</div>
+</div>

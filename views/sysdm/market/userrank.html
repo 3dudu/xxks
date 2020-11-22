@@ -1,0 +1,134 @@
+{js:areaSelect}
+
+<div class="breadcrumbs" id="breadcrumbs">
+        <ul class="breadcrumb">
+            <li>
+                <i class="home-icon fa fa-home"></i>
+                <a href="#">统计</a>
+            </li>
+            <li>
+                <a href="#">积分排行</a>
+            </li>
+            <li class="active">用户排行</li>
+        </ul>
+    </div>
+    
+    <div class="content table-responsive">
+            <form name="searchcompany" action="{url:/market/userrank}" method="get" class="pull-right form-inline" style="margin:0">
+                <input type="hidden" name="controller" value="market"/>
+                <input type="hidden" name="action" value="userrank"/>
+                <span id="__hycategoryBox" style="margin-bottom:8px"></span>
+                <button class="btn btn-default" type="button" name="_companyCategoryButton"><i class="fa fa-list"></i>过滤行业</button>
+                {set:plugin::trigger('companyCategoryWidget',array("idArea"=>"__hycategoryBox","type" => "radio","name" => "hy_id","value" => isset($this->search_category) ? $this->search_category : ""))}
+
+                <span id="__categoryBox" style="margin-bottom:8px"></span>
+                <button class="btn btn-default" type="button" name="_memberCategoryButton"><i class="fa fa-list"></i>过滤岗位</button>
+                {set:plugin::trigger('memberCategoryWidget',array("type"=>"radio","name" => "gw_id","value" => isset($this->member_category) ? $this->member_category : ''))}
+                
+                {if:$this->admin['level']==1}
+                <select name="province" style="display: none" class="form-control" child="city,area"></select>
+                <select name="city" style="display: none" class="form-control" child="area"></select>
+                区县：<select name="area" class="form-control" 
+                ></select>
+                {/if}
+
+                <select class="form-control" name="search[like]">
+                    <option value="m.true_name">员工姓名</option>
+                    <option value="c.name">企业名称</option>
+                </select>
+                <input class="form-control" name="search[likeValue]" type="text" value=""/>
+
+                <button class="btn btn-default" type="button" onclick="submitForm('{url:/market/userrank}','userrank');">
+                    <i class="fa fa-search"></i>搜 索
+                </button>
+
+                <button class="btn btn-default" onclick="submitForm('{url:/market/userrank_report}','userrank_report')">
+                    <i class="fa fa-file-excel-o"></i> 导出报表
+                </button>
+            </form>
+        <table class="table list-table table-striped table-hover  table-bordered">
+            <colgroup>
+                <col width="35px" />
+                <col width="60px" />
+                <col width="60px" />
+                <col width="180px" />
+                <col width="80px" />
+                <col width="60px" />
+                <col />
+                <col width="160px" />
+                <col/>
+                <col />
+                <col width="60px" />
+            </colgroup>
+            <caption>
+            </caption>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>查询名次</th>
+                    <th>总名次</th>
+                    <th>姓名</th>
+                    <th>手机</th>
+                    <th>积分</th>
+                    <th>岗位</th>
+                    <th>入职日期</th>
+                    <th>企业名</th>
+                    <th>行业</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {foreach:items=$this->queryList}
+                <tr>
+                    <td><input name="id[]" type="checkbox" value="{$item['id']}" /></td>
+                    <td>{$item['rank']}</td>
+                    <td>{$item['all_rank']}</td>
+                    <td title="{echo:htmlspecialchars($item['true_name'])}">{$item['true_name']}</td>
+                    <td title="{echo:htmlspecialchars($item['mobile'])}">{$item['mobile']}</td>
+                    <td title="{echo:htmlspecialchars($item['point'])}">{$item['point']}</td>
+                    <td>
+                        {foreach:items=Api::run('getGWCategoryExtendNameByCategoryid',array('id'=>$item["work_id"])) item=$catGWName}
+                            [{$catGWName['name']}]
+                        {/foreach}
+                    </td>
+                    <td title="{$item['create_time']}">{$item['create_time']}</td>
+                    <td title="{echo:htmlspecialchars($item['c_name'])}">{$item['c_name']}</td>
+                    <td>
+                        {foreach:items=Api::run('getHYCategoryExtendNameByCategoryid',array('id'=>$item["com_id"])) item=$catName}
+                        [{$catName['name']}]
+                        {/foreach}
+                    </td>
+                    <td>
+                            <a href="{url:/market/user_point_line/user_id/$item['user_id']/true_name/$item['true_name']}"><i class='operator fa fa-line-chart'></i></a>
+                    </td>
+                </tr>
+                {/foreach}
+            </tbody>
+        </table>
+        {$this->query->getPageBar()}
+    </div>
+    
+    <script language="javascript">
+    //预加载
+    $(function(){
+        var searchData = {echo:JSON::encode(IReq::get('search'))};
+        for(var index in searchData)
+        {
+            $('[name="search['+index+']"]').val(searchData[index]);
+        }
+
+                    //地区联动插件
+    {if:$this->admin['level']==1}
+	var areaInstance = new areaSelect('province');
+    areaInstance.init({echo:JSON::encode($this->companyRow)});
+    {/if}
+    })
+
+function submitForm(url,action)
+{
+	$('[name="searchcompany"]').attr('action',url);
+	$('input[name="action"]').val(action);
+	formSubmit("searchcompany");
+}
+    </script>
+    

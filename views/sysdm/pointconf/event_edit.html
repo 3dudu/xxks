@@ -1,0 +1,183 @@
+{js:my97date}
+
+<div class="breadcrumbs" id="breadcrumbs">
+		<ul class="breadcrumb">
+			<li>
+				<i class="home-icon fa fa-home"></i>
+				<a href="#">系统</a>
+			</li>
+			<li>
+				<a href="#">积分规则</a>
+			</li>
+			<li class="active">添加规则</li>
+		</ul>
+</div>
+<div class="content table-responsive">
+		<form action="{url:/pointconf/event_edit_act}"  method="post" name='event_edit' class="form-horizontal">
+			<input type='hidden' name='id' />
+			<table class="table form-table">
+					<colgroup>
+						<col width="130px" />
+						<col />
+					</colgroup>
+				<tr>
+					<th>事件名称：</th>
+					<td><input type='text' class='form-control' name='name' pattern='required' placeholder='事件名称' /></td>
+				</tr>
+				<tr>
+					<th>事件时间：</th>
+					<td>
+						<div class="input-group">
+						<input type='text' name='start_date' class='form-control' pattern='date' readonly=true autocomplete="off" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" alt='请填写一个日期' /> ～
+						<input type='text' name='end_date' class='form-control' pattern='date' readonly=true autocomplete="off" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" alt='请填写一个日期' />
+						</div>
+						<p class="help-block">* 此事件时间段</p>
+					</td>
+				</tr>
+				<tr>
+					<th>是否开启：</th>
+					<td>
+						<label class='radio-inline'><input type='radio' name='status' value='1' checked=checked />是</label>
+						<label class='radio-inline'><input type='radio' name='status' value='0' />否</label>
+					</td>
+				</tr>
+				<tr>
+					<th>允许参与人群：</th>
+					<td>
+					<label class="checkbox-inline"><input type='checkbox' name='user_group' value='all' onchange='select_all();' />全部</label>
+					<div style="width:220px;float:left;">
+						{query:name=user_group}
+					<label class="checkbox-inline"><input type='checkbox' {if:in_array($item['id'],explode(',',$this->eventRow['user_group']))}checked=checked{/if} name='user_group[]' value='{$item['id']}' />{$item['group_name']}</label></li>
+						{/query}
+					</div>
+					
+						<p class="help-block">* 此事件允许参加的用户组</p>
+					</td>
+				</tr>
+				<tr>
+					<th>事件：</th>
+					<td><input type='text' class='form-control' name='event' pattern='required' alt='事件' /></td>
+				</tr>
+				<tr>
+					<th>数值：</th>
+					<td><input type='text' class='form-control' name='point' pattern='required' alt='数值' /></td>
+				</tr>
+				<!--
+
+					<tr>
+						<th>分值类型：</th>
+						<td>
+							<select class=' form-control auto' name='point_type' pattern='required' alt='请选择一种类型'>
+								<option value='0'>{$this->_siteConfig->goldName}</option>
+								<option value='1'>{$this->_siteConfig->wawabiName}</option>
+							</select>
+							<p class="help-block">* 此事件分值类型</p>
+						</td>
+					</tr>
+				-->
+				<tr>
+					<th>事件类型：</th>
+					<td>
+						<select class='form-control ' name='event_type' pattern='required' alt='请选择一种类型' onchange="change_type(this.value);">
+							<option value=''>请选择</option>
+							<option value='1'>单次</option>
+							<option value='2'>多次</option>
+							<option value='3'>周期</option>
+						</select>
+						<p class="help-block">* 此事件类型</p>
+					</td>
+				</tr>
+				<tr id=“priedtype_tr”>
+					<th>周期类型：</th>
+					<td>
+						<select class='form-control ' name='priedtype' pattern='required' alt='请选择一种规则'>
+							<option value=''>请选择</option>
+							<option value='1'>天</option>
+							<option value='2'>周</option>
+							<option value='3'>月</option>
+						</select>
+						<p class="help-block">* 此事件周期类型，每个周期触发一次</p>
+					</td>
+				</tr>
+				<tr id="task_num_tr">
+						<th>次数上限：</th>
+						<td>
+							<input type='text' class='form-control' name='task_num' pattern='required' value="0" alt='次数限制' />
+						</td>
+				</tr>
+				<tr>
+						<th>排序：</th><td><input class="form-control" name="sort" pattern='int' empty type="text" value=""/></td>
+				</tr>
+				<tr>
+					<th>介绍：</th>
+					<td><textarea class='form-control' name='mark'>{$this->eventRow['mark']}</textarea></td>
+				</tr>
+				<tr>
+					<th></th><td><button class='btn btn-primary' type='submit'>确定</button></td>
+				</tr>
+			</table>
+		</form>
+	</div>
+
+<script type='text/javascript'>
+		//修改规则
+	function change_type(selectVal)
+	{
+		//判断是否为真正的onchange事件
+		if(selectVal != $('#rule_box').data('index'))
+		{
+			$('#rule_box').data('index',selectVal);
+		}
+		else
+		{
+			return;
+		}
+
+		var html = '';
+		$('#task_num_tr').hide();
+		$('#“priedtype_tr”').hide();
+
+		if(selectVal==3)
+		{
+			$('#“priedtype_tr”').show();
+			$('#task_num_tr').show();
+		}else if(selectVal==2){
+			$('#task_num_tr').show();
+		}else{
+			$('#task_num_tr').hide();
+			$('#“priedtype_tr”').hide();
+			$('[name="priedtype"]').val('');
+		}
+	}
+
+	//选择参与人群
+	function select_all()
+	{
+		var is_checked = $('[name="user_group"]').prop('checked');
+		if(is_checked == true)
+		{
+			var checkedVal  = true;
+			var disabledVal = true;
+		}
+		else
+		{
+			var checkedVal  = false;
+			var disabledVal = false;
+		}
+
+		$('input:checkbox[name="user_group[]"]').each(
+			function(i)
+			{
+				$(this).prop('checked',checkedVal);
+				$(this).prop('disabled',disabledVal);
+			}
+		);
+	}
+
+
+
+	//表单回填
+	var formObj = new Form('event_edit');
+	formObj.init({echo:JSON::encode($this->eventRow)});
+	change_type("{$this->eventRow['event_type']}");
+</script>

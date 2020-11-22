@@ -1,0 +1,112 @@
+<div class="breadcrumbs" id="breadcrumbs">
+    <ul class="breadcrumb">
+        <li>
+            <i class="home-icon fa fa-home"></i>
+            <a href="#">考试</a>
+        </li>
+        <li>
+            <a href="#">考试管理</a>
+        </li>
+        <li class="active">编辑题库</li>
+    </ul>
+</div>
+
+<div class="content table-responsive">
+	<form action='{url:/exam/question_pool_edit_act}' method='post' name='cat'>
+		<input type='hidden' name='id' value='' />
+		<table class="table form-table">
+			<colgroup>
+				<col width="160px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>名称：</th>
+				<td>
+					<input type='text' class='form-control' name='title' value='' pattern='required' placeholder='填写名称' />
+				</td>
+			</tr>
+			<tr>
+				<th>题库格式：</th>
+				<td>
+					<select class="form-control" name="poolformat" pattern="required" alt="" onchange="changeformat(this)">
+						<option value='0'>默认</option>
+						<option value='1'>格式2</option>
+						<option value='2'>baidu</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th>上级栏目：</th>
+				<td>
+					<select class="form-control" name="parent_id" pattern="required" alt="请选择栏目值">
+						<option value='0'>顶级栏目</option>
+						{foreach:items=examclass::sortdata(Api::run('getQuestionPoolAll'))}
+						<option value='{$item['id']}'>{echo:str_repeat('&nbsp;&nbsp;&nbsp;',substr_count($item['path'],',')-2)}{$item['title']}</option>
+						{/foreach}
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th>是否显示：</th>
+				<td>
+					<label class='radio-inline'><input type='radio' name='visibility' value='1' checked=checked />是</label>
+					<label class='radio-inline'><input type='radio' name='visibility' value='0' />否</label>
+				</td>
+		</tr>
+		<tr id="bdcid">
+			<th>百度分类id：</th>
+			<td><input type='text' class='form-control' name='bdcid' value='' /></td>
+		</tr>
+		<tr id="sub_class">
+			<th>sub_class：</th>
+			<td><input type='text' class='form-control' name='sub_class' value='' /></td>
+		</tr>
+		<tr>
+			<th>定价：</th>
+			<td><input type='text' class='form-control' name='price' value='' /></td>
+		</tr>
+		<tr>
+			<th>IAP标识：</th>
+			<td><input type='text' class='form-control' name='price_level' value='' /></td>
+		</tr>
+            <tr>
+                <th>描述：</th>
+                <td>
+                    <textarea class='form-control' name='description' value='' ></textarea>
+                </td>
+			</tr>
+			<tr>
+				<th>排序：</th>
+				<td><input type='text' class='form-control' name='sort' value='' /></td>
+			</tr>
+			<tr>
+				<th></th><td><button class='btn btn-primary' type='submit'>确定</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+<script>
+var formObj = new Form();
+formObj.init({echo:JSON::encode($this->pool_row)});
+
+$("#bdcid").hide();
+$("#sub_class").hide();
+
+if("{$this->pool_row['poolformat']}"==2){
+	$("#bdcid").show();
+}else if("{$this->pool_row['poolformat']}"==1){
+	$("#sub_class").show();
+}
+
+function changeformat(obj){
+	$("#bdcid").hide();
+	$("#sub_class").hide();
+
+	if($(obj).val()==2){
+		$("#bdcid").show();
+	}else if($(obj).val()==1){
+		$("#sub_class").show();
+	}
+}
+</script>

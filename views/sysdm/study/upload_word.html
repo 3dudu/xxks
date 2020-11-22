@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>上传考题文件</title>
+{js:jquery}
+{js:dialog}
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+</head>
+<body style="width:500px;min-height:220px;overflow-y:hidden;">
+	<div class="container">
+		<ul class="list-group">
+			<li class="list-group-item">1、此功能可以直接导入Word，但是一般不建议，导入的word数据量太大</li>
+			<li class="list-group-item">2、导入的Word附件必须是小于 {echo:IUpload::getMaxSize()} 的文本文件</li>
+			<li class="list-group-item">2、只支持docx格式</li>
+			<li class="list-group-item">
+				<form action="{url:/study/import_word}" method="post" enctype="multipart/form-data">
+					<div class="form-group">
+						<label for="name">导入的文件</label>
+						<input class="form-control" name="qFile" type="file" accept=".docx" />
+					</div>
+				</form>
+			</li>
+		</ul>
+	</div>
+</body>
+</html>

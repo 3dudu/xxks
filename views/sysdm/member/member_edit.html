@@ -1,0 +1,160 @@
+{js:areaSelect}
+{js:autocompleter}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="#">会员管理</a>
+		</li>
+		<li class="active">编辑会员</li>
+	</ul>
+</div>
+<div class="content table-responsive">
+	<form action="{url:/member/member_save}" method="post" name="memberForm" enctype="multipart/form-data">
+		<input name="user_id" value="" type="hidden" />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tbody>
+				<tr>
+							<th>账号：</th><td><input class="form-control" name="username" type="text" value="" empty placeholder="账号" /></td>
+				</tr>
+				<tr>
+					<th>手机：</th><td><input class="form-control" name="mobile" type="text" value="" pattern="mobi" placeholder="手机号码" /></td>
+				</tr>
+				<tr>
+					<th>姓名：</th>
+					<td><input class="form-control" name="true_name" type="text" value="" placeholder="真实的姓名" /></td>
+				</tr>
+				<tr>
+                    <th>身份证号码：</th>
+                    <td><input class="form-control" name="idcode" type="text" pattern="id" empty value="" placeholder="身份证号码" autocomplete="off"/></td>
+				</tr>
+				<tr>
+					<th>密码：</th><td><input class="form-control" name="password" type="password" /></td>
+				</tr>
+				<tr>
+					<th>确认密码：</th><td><input class="form-control" name="repassword" type="password" /></td>
+				</tr>
+				<tr>
+					<th>LOGO图：</th>
+					<td>
+						<input type='file' name='logo' />
+						{if:isset($userData['logo']) && $userData['logo']}
+						<input type='hidden' name='_logo' value="{$userData['logo']}"/>
+						<p><img src='{url:$userData['logo']}' style='width:220px;border:1px solid #ccc' /></p>
+						{/if}
+					</td>
+				</tr>
+				<tr>
+					<th>性别：</th>
+					<td>
+                        <label class="radio-inline">
+                            <input type="radio" name="sex" value="1" checked=checked>男
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="sex" value="2">女
+                        </label>
+					</td>
+				</tr>
+				<tr>
+					<th>邮箱：</th>
+					<td><input type="text" class="form-control" name="email" pattern="email" empty /></td>
+				</tr>
+				<tr>
+					<th>电话：</th><td><input class="form-control" name="telephone" type="text" value="" empty pattern="phone" placeholder="固定座机号码如010-66668888-123" /><p class="help-block">格式：（地区号-）用户号（-分机号）如010-66668888-123</p></td>
+				</tr>
+				<tr>
+					<th>地区：</th>
+					<td>
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <select name="province" class="form-control" child="city,area"></select>
+                            </div>
+                            <div class="col-xs-3">
+                                <select name="city" class="form-control" child="area"></select>
+                            </div>
+                            <div class="col-xs-3">
+                                <select name="area" class="form-control"></select>
+                            </div>
+                        </div>
+					</td>
+				</tr>
+				<tr>
+					<th>地址：</th><td><input class="form-control" name="contact_addr" type="text" value="" /></td>
+				</tr>
+				<tr>
+					<th>邮编：</th><td><input class="form-control" name="zip" type="text" value="" empty pattern="zip"  /></td>
+				</tr>
+				<tr>
+					<th>QQ：</th><td><input class="form-control" name="qq" type="text" value="" empty pattern="qq"  /></td>
+				</tr>
+				<tr>
+					<th>经验值：</th><td><input class="form-control" name="exp" type="text" value="" /></td>
+				</tr>
+				<tr>
+					<th>积分：</th><td><input class="form-control" name="point" type="text" value="" /></td>
+				</tr>
+				<tr>
+					<th>状态：</th>
+					<td>
+						<select name="status" class="form-control">
+							<option value="1">正常</option>
+							<option value="2">删除</option>
+							<option value="3">锁定</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td></td><td><button class='btn btn-primary' type="submit">确 定</button></td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
+</div>
+<script language="javascript">
+//DOM加载完毕
+$(function(){
+var areaInstance = new areaSelect('province');
+
+//修改模式
+var formObj = new Form('memberForm');
+formObj.init({echo:JSON::encode($userData)});
+
+//地区初始化
+{if:$userData && $userData['area']}
+{set:$area = explode(',',trim($userData['area'],','))}
+areaInstance.init({"province":"{$area[0]}","city":"{$area[1]}","area":"{$area[2]}"});
+{else:}
+areaInstance.init();
+{/if}
+
+var _combine = function(params){
+	var mobile = $('input[name=mobile]').val();
+    var true_name = $('input[name=true_name]').val();
+    var idcode = $('input[name=idcode]').val();
+	return {
+		query: params.query,
+		mobile: mobile,
+		true_name: true_name,
+		idcode: idcode
+	};
+}
+var _callback = function(value, index, object){
+	$('input[name=mobile]').val(object['mobile']);
+    $('input[name=true_name]').val(object['true_name']);
+    $('input[name=idcode]').val(object['idcode']);
+}
+$('input[name="idcode"]').autocompleter({callback:_callback,offset:'ret_data.ajax_auto',highlightMatches:true,highlightMatches:true,cache:false, source: "{url:/api/tools/ajax_auto/data/idcode}",customValue:'idcode',combine: _combine});
+$('input[name="mobile"]').autocompleter({callback:_callback,offset:'ret_data.ajax_auto',highlightMatches:true,cache:false,source: "{url:/api/tools/ajax_auto/data/mobile}",customValue:'mobile',combine: _combine});
+$('input[name="true_name"]').autocompleter({callback:_callback,offset:'ret_data.ajax_auto',highlightMatches:true,cache:false,source: "{url:/api/tools/ajax_auto/data/true_name}",customValue:'true_name',combine: _combine});
+
+
+});
+</script>

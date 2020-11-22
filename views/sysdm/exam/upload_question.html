@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>上传考题文件</title>
+{js:jquery}
+{js:dialog}
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+</head>
+<body style="width:500px;min-height:220px;overflow-y:hidden;">
+	<div class="container">
+		<ul class="list-group">
+			<li class="list-group-item">1、此功能可以直接将考题导入到您的系统中</li>
+			<li class="list-group-item">2、<b>导入的题目暂时在回收站，统一设置行业和岗位后可以正式入题库</b></li>
+			<li class="list-group-item">3、导入的Excle附件必须是小于 {echo:IUpload::getMaxSize()} 的文本文件</li>
+			<li class="list-group-item">4、TXT文件必须是UTF-8编码，LF换行</li>
+			<li class="list-group-item">
+				<form action="{url:/exam/importQuestion}" method="post" enctype="multipart/form-data">
+					<div class="form-group">
+						<select name="temp" id="temp" class="form-control" pattern="required" onchange="changeTemp(this)">
+						{foreach:items=examclass::getImportPlugins()}
+							<option value="{$item['file']}">{$item['name']}</option>
+						{/foreach}
+						</select>
+						<a href="#" onclick="downTemp($('#temp').val())">下载模板</a>
+				</div>
+					<div class="form-group">
+							<select name="poolid" class="form-control" pattern="required" alt="请选择分类值" >
+							<option value="0">无分类</option>
+							{foreach:items=Api::run('getQuestionPoolAll')}
+								<option value="{$item['id']}">{$item['title']}</option>
+							{/foreach}
+							</select>
+							<a href="#" onclick="parent.goToLink('{url:/exam/question_pool_edit}')">添加题库分类</a>
+					</div>
+					<div class="form-group">
+						<label for="name">导入的文件</label>
+						<input class="form-control" name="qFile" type="file" accept=".xls,.xlsx,.txt" />
+					</div>
+				</form>
+			</li>
+		</ul>
+	</div>
+	<script>
+	var temps = {echo:JSON::encode(examclass::getImportPlugins())};
+	$(function(){
+		var temp = temps[0];
+		var exts = temp['ext'];
+		var extss = exts.split(',');
+		var extsss = '';
+		for(var i=0;i<extss.length;i++){
+			if(i>0){
+				extsss += ",";
+			}
+			extsss += "."+extss[i];
+		}
+		$('[name="qFile"]').attr("accept",extsss);
+	});
+	function changeTemp(sel){
+		var temp = temps[sel.selectedIndex];
+		var exts = temp['ext'];
+		var extss = exts.split(',');
+		var extsss = '';
+		for(var i=0;i<extss.length;i++){
+			if(i>0){
+				extsss += ",";
+			}
+			extsss += "."+extss[i];
+		}
+		$('[name="qFile"]').attr("accept",extsss); 
+	}
+	function downTemp(file){
+		var downUrl = '{url:/exam/question_temp_down}';
+		if(downUrl.indexOf('?')>-1){
+			downUrl = downUrl +"&file="+file;
+		}else{
+			downUrl = downUrl +"?file="+file;
+		}
+		window.open(downUrl);
+	}
+	</script>
+</body>
+</html>

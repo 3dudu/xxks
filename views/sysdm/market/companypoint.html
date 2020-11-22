@@ -1,0 +1,158 @@
+{set:
+	$start = IFilter::act(IReq::get('start'));
+	$end   = IFilter::act(IReq::get('end'));
+	$countData = statistics::companyPointPie($start,$end,$this->admin['level']?'':$this->admin['area']);
+}
+
+{js:my97date}
+{js:chart}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">统计</a>
+		</li>
+		<li>
+			<a href="#">基础数据统计</a>
+		</li>
+		<li class="active">企业得分统计</li>
+	</ul>
+</div>
+<div class="content table-responsive">
+	<form action='{url:/market/companypoint}' method='get' class="form-inline" name="searchForm">
+
+		<div class="input-group">
+			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+			<input type="text" name='start' class="form-control" value='{$start}' pattern='date' empty autocomplete="off" onfocus="WdatePicker()" placeholder="起始时间"/>
+		</div>
+
+		<div class="input-group">
+			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+			<input type="text" name='end' pattern='date' value='{$end}' class="form-control" empty autocomplete="off" onfocus="WdatePicker()" placeholder="结束时间"/>
+		</div>
+
+		<button class="btn btn-default" type="submit">
+		    <i class="fa fa-search"></i> 查询
+		</button>
+	</form>
+
+	<div class="box" style="margin-top:20px">
+		<div class="box-header">
+			查看一个时间周期内每个时间段学习得分情况，反应一个阶段内的学习变化情况！
+		</div>
+		<div class="box-body">
+			<div id="myChart" style="min-height:350px;"></div>
+		</div>
+	</div>
+</div>
+
+<script type='text/javascript'>
+//图表生成
+$(function()
+{
+    var all_point = [];
+
+	//图标模板
+	var option = {
+        baseOption:{
+        timeline: {
+            axisType: 'category',
+            autoPlay: true,
+            playInterval: 2000,
+            data: [],
+            label: {
+                formatter : function(s) {
+                    return s;
+                }
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: function(s,i) {
+                    return s.name+' 总积分：'+all_point[s.data];
+                }
+            }
+        },
+        tooltip : {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+		title:
+		{
+			text:'企业情况统计'
+        },
+        toolbox: {
+        show: true,
+        feature: {
+            dataView: {readOnly: false},
+            restore: {},
+            saveAsImage: {}
+        }
+        },
+        legend: {
+            type: 'scroll',
+            orient: 'vertical',
+            right: 10,
+            top: 40,
+            bottom: 20,
+            data: [],
+            selected:[]
+        },
+        calculable : true,
+		series:
+		[
+            {
+                name: '公司',
+                type: 'pie',
+                radius : '70%',
+                center: ['50%', '45%'],
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+        },
+        options:[]
+    };
+    var all_time = {echo:JSON::encode(array_keys($countData))};
+    var all_datas = {echo:JSON::encode(array_values($countData))};
+    var dates = [];
+    var legend = [];
+    var selected = [];
+    var _options = [];
+    var legend_obj = {};
+    for(var i=0;i<all_datas.length;i++){
+        var t_datas = all_datas[i];
+        var com_data = [];
+        var point = 0;
+        for(var c_name in t_datas){
+            com_data.push({name:c_name,value:parseInt(t_datas[c_name])});
+            point += parseInt(t_datas[c_name]);
+            if(!legend_obj[c_name]){
+                legend.push(c_name);
+                if(selected.length<11){
+                    selected.push(c_name);
+                }
+                legend_obj[c_name]=1
+            }
+        }
+        all_point.push(point);
+        _options.push({
+            title:{text: all_time[i]+'数据'},
+            series:[
+                {data: com_data}
+            ]
+        })
+    }
+    option.options = _options;
+    option.baseOption.timeline.data = all_time;
+    option.baseOption.legend.data = legend;
+    option.baseOption.legend.selected = selected;
+
+	echarts.init(document.getElementById('myChart')).setOption(option);
+});
+
+</script>

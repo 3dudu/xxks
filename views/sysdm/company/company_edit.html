@@ -1,0 +1,224 @@
+{js:areaSelect}
+{js:jqueryViewer}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="#">企业管理</a>
+		</li>
+		<li class="active">编辑企业</li>
+	</ul>
+</div>
+<div class="content table-responsive">
+	<form action="{url:/company/company_add}" method="post" name="companyForm" enctype='multipart/form-data'>
+		<input name="id" value="" type="hidden" />
+
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tbody>
+				<tr>
+					<th>企业默认管理员</th>
+				</tr>
+				<tr>
+					<th>登陆用户名：</th>
+					<td><input class="form-control" name="admin_name" type="text" value="{$this->companyAdminRow['name']}" pattern="required" placeholder="登录商家用户名账号" /></td>
+				</tr>
+				<tr>
+					<th>密码：</th><td><input class="form-control" name="password" type="password" bind='repassword' empty /></td>
+				</tr>
+				<tr>
+					<th>确认密码：</th><td><input class="form-control" name="repassword" type="password" bind='password' empty /></td>
+				</tr>
+				<tr>
+						<th>企业信息</th>
+				</tr>
+				<tr>
+					<th>企业真实全称：</th>
+					<td><input class="form-control" name="name" type="text" value="" pattern="required" /></td>
+				</tr>
+				<tr>
+					<th>企业法人：</th>
+					<td><input class="form-control" name="com_faren" type="text" value="" pattern="required" /></td>
+				</tr>
+				<tr>
+					<th>法人手机号码：</th>
+					<td><input type="text" class="form-control" name="mobile" pattern="mobi" empty /></td>
+				</tr>
+				<tr>
+					<th>行业分类：</th>
+					<td>
+						<!--分类数据显示-->
+						<span id="__categoryBox" style="margin-bottom:8px"></span>
+						<button class="btn btn-default" type="button" name="_companyCategoryButton"><i class="fa fa-list"></i>设置分类</button>
+						{set:plugin::trigger('companyCategoryWidget',array("type" => "checkbox","name" => "_company_category[]","value" => isset($this->company_category) ? $this->company_category : ""))}
+						<a href='{url:/company/category_edit}'>添加新分类</a>
+					</td>
+				</tr>
+				<tr>
+					<th>经营范围：</th>
+					<td>
+						<!--分类数据显示-->
+						<span id="__jyfwcategoryBox" style="margin-bottom:8px"></span>
+						<button class="btn btn-default" type="button" name="_jyfwCategoryButton"><i class="fa fa-list"></i>设置分类</button>
+						{set:plugin::trigger('jyfwCategoryWidget',array("type" => "checkbox","name" => "_jyfw_category[]","value" => isset($this->jyfw_category) ? $this->jyfw_category : ""))}
+						<a href='{url:/company/jyfw_edit}'>添加新分类</a>
+					</td>
+				</tr>
+				<tr>
+					<th>营业执照号：</th>
+					<td><input class="form-control" name="com_code" type="text" value="" pattern="required" /></td>
+				</tr>
+				<tr>
+					<th>员工数量：</th>
+					<td><input class="form-control" name="com_worknum" type="text" value="" pattern="int" /></td>
+				</tr>
+				<tr>
+					<th>管理人员数量：</th>
+					<td><input class="form-control" name="com_securitynum" type="text" value="" pattern="int" /></td>
+				</tr>
+				<tr>
+					<th>安全员数量：</th>
+					<td><input class="form-control" name="com_managernum" type="text" value="" pattern="int" /></td>
+				</tr>
+				<tr>
+						<th>级别：</th>
+						<td>
+							<select name="level"  class="form-control"
+							{if:$this->fixLevel}
+									onfocus="this.defaultIndex=this.selectedIndex;" onchange="this.selectedIndex=this.defaultIndex;" readonly="readonly"
+									{/if}>
+								<option value="0">区县</option>
+								<option value="1">市级</option>
+							</select>
+						</td>
+				</tr>
+				<tr>
+						<th>地区：</th>
+						<td>
+							<div class="row">
+								<div class="col-xs-3" style="display: none">
+									<select name="province" class="form-control" child="city,area,street"></select>
+								</div>
+								<div class="col-xs-3" style="display: none">
+									<select name="city" class="form-control" child="area,street"></select>
+								</div>
+								<div class="col-xs-3">
+									<select name="area" class="form-control" child="street" pattern='required' 
+									{if:$this->fixLevel}
+									onfocus="this.defaultIndex=this.selectedIndex;" onchange="this.selectedIndex=this.defaultIndex;" readonly="readonly"
+									{/if}
+									></select>
+								</div>
+								<div class="col-xs-3">
+									<select name="street" class="form-control" pattern='required' ></select>
+								</div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th>详细地址：</th><td><input class="form-control" name="address" type="text" empty value="" /></td>
+					</tr>
+				
+					<tr>
+						<th>企业官网：</th>
+						<td>
+							<input class="form-control" name="home_url" type="text" pattern="url" empty value="" placeholder="请填写完整的URL地址，比如：http://www.baidu.com" />
+							<p class="help-block">填写完整的网址，如：http://www.baidu.com</p>
+						</td>
+					</tr>
+					<tr>
+						<th>固定电话：</th>
+						<td><input type="text" class="form-control" name="phone" pattern="phone" empty /></td>
+					</tr>
+					<tr>
+						<th>邮箱：</th>
+						<td><input type="text" class="form-control" name="email" pattern="email" empty /></td>
+					</tr>
+					
+					<tr>
+						<th>排序：</th>
+						<td><input type='text' class="form-control" name='sort' pattern='int' empty /></td>
+					</tr>
+					<tr>
+						<th>企业LOGO图：</th>
+						<td>
+							<input type='file' name='logo' />
+							{if:isset($this->companyRow['logo']) && $this->companyRow['logo']}
+							<p><img src='{url:$this->companyRow['logo']}' style='width:220px;border:1px solid #ccc' /></p>
+							{/if}
+						</td>
+					</tr>
+					<tr>
+						<th>企业资质材料：</th>
+						<td>
+							<input type='file' name='paper_img' />
+							{if:isset($this->companyRow['paper_img']) && $this->companyRow['paper_img']}
+							<p><img id="paper_img" src='{url:$this->companyRow['paper_img']}' style='width:320px;border:1px solid #ccc' /></p>
+							{/if}
+						</td>
+					</tr>	
+
+				<tr>
+					<th>是否开通：</th>
+					<td>
+						<label class='radio-inline'><input type='radio' name='is_lock' value='0' checked='checked' />开通</label>
+						<label class='radio-inline'><input type='radio' name='is_lock' value='1' />锁定</label>
+						<p class="help-block">锁定后企业无法登陆进行管理</p>
+					</td>
+				</tr>
+				<tr>
+						<th>描述简要：</th><td><textarea class='form-control' name='note' value='' ></textarea></td>
+				</tr>
+				<tr>
+					<td></td><td><button class='btn btn-primary' type="submit" onclick="return checkForm()">确定</button></td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
+</div>
+
+<script language="javascript">
+//DOM加载完毕
+$(function()
+{
+	//修改模式
+	{if:$this->companyRow}
+	var formObj = new Form('companyForm');
+	formObj.init({echo:JSON::encode($this->companyRow)});
+
+	//锁定字段一旦注册无法修改
+	if($('[name="id"]').val())
+	{
+		var lockCols = ['company_name'];
+		for(var index in lockCols)
+		{
+			$('input:text[name="'+lockCols[index]+'"]').addClass('readonly');
+			$('input:text[name="'+lockCols[index]+'"]').attr('readonly',true);
+		}
+	}
+	{/if}
+
+	//地区联动插件
+	var areaInstance = new areaSelect('province');
+	areaInstance.init({echo:JSON::encode($this->companyRow)});
+
+	var $imageViewer = $('#paper_img');
+	$imageViewer.viewer();
+});
+
+function checkForm(){
+	var _company_category = $('input[name="_company_category[]"]');
+	if(_company_category.size()<1){
+		toastr.error("必须选择行业");
+		return false;
+	}
+	return true;
+}
+</script>

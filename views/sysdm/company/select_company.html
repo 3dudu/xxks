@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>企业检索</title>
+{js:jquery}
+{js:dialog}
+{js:form}
+{js:artTemplate}
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+<script type='text/javascript' src="{webroot:public/javascript/twitter-bootstrap/3.3.7/js/bootstrap.min.js}"></script>
+</head>
+<body>
+	<div class="container" style="min-width:420px;margin-top:10px;">
+		<form action='{url:/company/select_company_list/type/$type}' method='post' name='searchForm'>
+			<input type='hidden' name='search[type]' value='name' />
+
+			<div class="form-group">
+				<div class="input-group">
+					<div class="input-group-btn">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span id="searchTypeText">企业名称</span> <span class="caret"></span></button>
+						<ul class="dropdown-menu">
+							<li><a href="javascript:changeSearch('name');">企业名称</a></li>
+							<li><a href="javascript:changeSearch('com_code');">企业执照号</a></li>
+						</ul>
+					</div>
+					<input type='text' class='form-control' name='search[content]' placeholder="输入查询信息" />
+				</div>
+			</div>
+
+			<div class="form-group">
+				<span id="__categoryBox"></span>
+				<button class="btn btn-default" type="button" name="_companyCategoryButton"><span class="glyphicon glyphicon-th-list"></span> 选择企业分类</button>
+                {set:plugin::trigger('companyCategoryWidget',array("name" => "_company_category","value" => isset($this->company_category) ? $this->company_category : ""))}
+			</div>
+
+		</form>
+	</div>
+</body>
+<script type="text/javascript">
+//切换搜索条件
+function changeSearch(val)
+{
+	$('input[name="search[type]"]').val(val);
+	$('#searchTypeText').text(typeConfig[val]);
+}
+
+//检索方式配置
+var typeConfig = {"name":"企业名称","com_code":"企业执照号"};
+
+//表单回填
+{if:isset($search)}
+var filterPost = {echo:JSON::encode($search)};
+var formObj = new Form('searchForm');
+for(var index in filterPost)
+{
+	formObj.setValue("search["+index+"]",filterPost[index]);
+}
+{/if}
+
+$('#searchTypeText').text(typeConfig[$('input[name="search[type]"]').val()]);
+</script>
+</html>

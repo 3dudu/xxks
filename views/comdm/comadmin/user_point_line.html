@@ -1,0 +1,130 @@
+{set:
+	$start = IFilter::act(IReq::get('start'));
+	$end   = IFilter::act(IReq::get('end'));
+	$user_id   = IFilter::act(IReq::get('user_id'));
+	$true_name   = IFilter::act(IReq::get('true_name'));
+	$countData = statistics::pointByUser($user_id,$start,$end);
+}
+
+{js:my97date}
+{js:chart}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li class="active">员工积分走势</li>
+	</ul>
+</div>
+<div class="content table-responsive">
+	<form action='{url:/comadmin/user_point_line}' method='get' class="form-inline" name="searchForm">
+		<input type='hidden' name='true_name' value='{$true_name}' />
+		<input type='hidden' name='user_id' value='{$user_id}' />
+
+		<div class="input-group">
+			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+			<input type="text" name='start' class="form-control" value='{$start}' pattern='date' empty autocomplete="off" onfocus="WdatePicker()" placeholder="起始时间"/>
+		</div>
+
+		<div class="input-group">
+			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+			<input type="text" name='end' pattern='date' value='{$end}' class="form-control" empty autocomplete="off" onfocus="WdatePicker()" placeholder="结束时间"/>
+		</div>
+
+		<button class="btn btn-default" type="submit" >
+		    <i class="fa fa-search"></i> 查询
+		</button>
+
+	</form>
+
+	<div class="box" style="margin-top:20px">
+		<div class="box-header">
+				查看 {$true_name} 一个时间周期内每个时间段积分情况，反应一个阶段内的积分变化情况！
+		</div>
+
+		<div class="box-body">
+			<div id="myChart" style="min-height:350px;"></div>
+		</div>
+	</div>
+</div>
+
+<script type='text/javascript'>
+//图表生成
+//图表生成
+$(function()
+{
+	//图标模板
+	var option = {
+		title:
+		{
+			text:'积分情况统计'
+        },
+        tooltip: {
+        trigger: 'axis'
+        },
+        legend: {
+            data:[]
+        },
+        toolbox: {
+        show: true,
+        feature: {
+            dataZoom: {
+                yAxisIndex: 'none'
+            },
+            dataView: {readOnly: false},
+            magicType: {type: ['line', 'bar']},
+            restore: {},
+            saveAsImage: {}
+        }
+        },
+		xAxis:
+		{
+            name:'时间',
+            type: 'category',
+            boundaryGap: false,
+			data:[],
+		},
+		yAxis:
+		{
+            name:'积分',
+            type: 'value',
+        axisLabel: {
+            formatter: '{value}'
+        }
+		},
+		series:
+		[
+			
+		]
+    };
+    var all_areas = {echo:JSON::encode(array_keys($countData))};
+    var all_datas = {echo:JSON::encode(array_values($countData))};
+    var dates = [];
+    for(var i=0;i<all_datas.length;i++){
+        var aera_datas = all_datas[i];
+        var area_values = [];
+        for(var element in aera_datas) {
+            if(i==0)dates.push(element);
+            area_values.push(aera_datas[element]);
+        };
+        option.series[i] = {
+				name:all_areas[i],
+				type:'line',
+				smooth: true,
+                data:area_values,
+                markPoint: {
+                data: [
+                    {type: 'max', name: '最大值'},
+                    {type: 'min', name: '最小值'}
+                ]
+            },
+            markLine: {
+                data: [
+                    {type: 'average', name: '平均值'}
+                ]
+            }
+			};
+    }
+    option.legend.data = all_areas;
+    option.xAxis.data = dates;
+	echarts.init(document.getElementById('myChart')).setOption(option);
+});
+
+</script>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>导入文章</title>
+{js:jquery}
+{js:dialog}
+{set:$aid = IFilter::act(IReq::get('aid'))}
+
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+</head>
+<body style="width:500px;min-height:220px;overflow-y:hidden;">
+	<div class="container">
+		<ul class="list-group">
+			<li class="list-group-item">1、此功能可以直接导入文章到您的系统中</li>
+			<li class="list-group-item">
+				<form action="{url:/study/importArticle2}" method="post">
+					<div class="form-group">
+                            <select class="form-control w-auto" name="cid" pattern="required" alt="请选择栏目值">
+                                {foreach:items=Api::run('getArticleCategoryListAll')}
+                                <option value='{$item['id']}'>{echo:str_repeat('&nbsp;&nbsp;&nbsp;',substr_count($item['path'],',')-2)}{$item['name']}</option>
+                                {/foreach}
+                            </select>
+                            <a target="_blank" href="{url:/study/article_cat_edit}">添加内容栏目</a>
+					</div>
+					<div class="form-group">
+						<label for="name">微信文章地址</label>
+						<input name="aid" type="hidden" value="{$aid}" />
+						<input class="form-control" name="url" type="text" />
+					</div>
+				</form>
+			</li>
+		</ul>
+	</div>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">企业</a>
+		</li>
+		<li>
+			<a href="#">企业管理</a>
+		</li>
+		<li class="active">企业回收站</li>
+	</ul>
+</div>
+
+<div class="content table-responsive">
+		<form name="searchcompany" action="{url:/company/company_recycle_list}" method="get" class="pull-right form-inline" style="margin:0">
+			<input type="hidden" name="controller" value="company"/>
+			<input type="hidden" name="action" value="company_recycle_list"/>
+			<span id="__categoryBox" style="margin-bottom:8px"></span>
+			<button class="btn btn-default" type="button" name="_companyCategoryButton"><i class="fa fa-list"></i>过滤行业</button>
+			{set:plugin::trigger('companyCategoryWidget',array("type" => "radio","name" => "hy_id","value" => isset($this->search_category) ? $this->search_category : ""))}
+
+			<select class="form-control" name="search[like]">
+				<option value="name">企业名称</option>
+				<option value="com_faren">法人姓名</option>
+				<option value="com_code">执照号</option>
+				<option value="phone">手机</option>
+			</select>
+			<input class="form-control" name="search[likeValue]" type="text" value=""/>
+
+			<button class="btn btn-default" type="submit">
+				<i class="fa fa-search"></i>搜 索
+			</button>
+		</form>
+	<table class="table list-table table-striped table-hover  table-bordered">
+		<colgroup>
+			<col width="35px" />
+			<col/>
+			<col width="160px" />
+			<col width="100px" />
+			<col />
+			<col/>
+			<col width="70px" />
+			<col width="100px" />
+			<col width="80px" />
+			<col width="160px"/>
+			<col width="80px" />
+		</colgroup>
+		<caption>
+            <a class="btn btn-default" href='{url:/company/company_list}'>
+                <i class="fa fa-reply"></i>返回列表
+            </a>
+            <a class="btn btn-default" onclick="selectAll('id[]')">
+                <i class="fa fa-check"></i>全选
+            </a>
+            <a class="btn btn-default" onclick="delModel({'form':'company_restore',msg:'确定要恢复所选中的企业吗？'})">
+                <i class="fa fa-recycle"></i>批量恢复
+            </a>
+		</caption>
+		<thead>
+			<tr>
+				<th></th>
+				<th>企业名</th>
+				<th>执照号</th>
+				<th>座机</th>
+				<th>行业</th>
+				<th>属地</th>
+				<th>积分</th>
+				<th>员工(报备/在职)</th>
+				<th>状态</th>
+				<th>登记日期</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<form action="{url:/company/company_restore}" method="post" name="company_restore" onsubmit="return checkboxCheck('id[]','尚未选中任何记录！')">
+		<tbody>
+			{foreach:items=$this->query->find()}
+			<tr>
+				<td><input name="id[]" type="checkbox" value="{$item['id']}" /></td>
+				<td title="{echo:htmlspecialchars($item['name'])}">{$item['name']}</td>
+				<td title="{echo:htmlspecialchars($item['com_code'])}">{$item['com_code']}</td>
+				<td title="{echo:htmlspecialchars($item['phone'])}">{$item['phone']}</td>
+				<td>
+                    {foreach:items=Api::run('getHYCategoryExtendNameByCategoryid',array('id'=>$item["id"])) item=$catName}
+                        [{$catName['name']}]
+                    {/foreach}
+				</td>
+				<td>{echo:join(' ',area::name($item['city'],$item['area']))}</td>
+				<td title="{echo:htmlspecialchars($item['point'])}">{$item['point']}</td>
+				<td>{$item['com_worknum']}/
+                    {query:name=user_company fields=count(id) as countNums where=com_id eq $item[id] and is_del eq 0 id=$userQuery item=$userNum}
+                    <b class="f14 red3">
+							<a href="{url:/company/company_work_list/search[u.com_id]/=$item['id']}">
+						{$userNum['countNums']}</a>
+					</b>
+                    {/query}
+                </td>
+				<td>
+						{if:$item['is_lock'] == 0}正常{/if}
+						{if:$item['is_lock'] == 1}锁定{/if}
+				</td>
+				<td title="{$item['create_time']}">{$item['create_time']}</td>
+				<td>
+					<a href="{url:/company/company_edit/id/$item['id']}"><i class='operator fa fa-edit'></i></a>
+					<a onclick="delModel({link:'{url:/company/company_restore/id/$item[id]}',msg:'确定要恢复所选中的企业吗？'})"><i class='operator fa fa-recycle'></i></a>
+				</td>
+			</tr>
+			{/foreach}
+		</tbody>
+		</form>
+	</table>
+    {$this->query->getPageBar()}
+</div>
+
+<script language="javascript">
+//预加载
+$(function(){
+	var searchData = {echo:JSON::encode(IReq::get('search'))};
+	for(var index in searchData)
+	{
+		$('[name="search['+index+']"]').val(searchData[index]);
+	}
+})
+
+//企业状态修改
+function changeStatus(sid,obj)
+{
+	var lockVal = obj.value;
+	$.getJSON("{url:/company/ajax_company_lock}",{"id":sid,"lock":lockVal});
+}
+</script>

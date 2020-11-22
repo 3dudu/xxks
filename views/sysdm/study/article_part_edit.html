@@ -1,0 +1,185 @@
+{js:kindeditor}
+{js:editerPreview}
+{js:my97date}
+
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">学习</a>
+		</li>
+		<li>
+			<a href="#">内容管理</a>
+		</li>
+		<li class="active">编辑内容章节</li>
+	</ul>
+</div>
+
+<div class="content table-responsive">
+	<form action='{url:/study/article_part_edit_act}' method='post' name='article'>
+		<input type='hidden' name='id' value="" />
+		<input type='hidden' name='aid' value="{$this->articleRow['id']}" />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+				<col width="400px" />
+			</colgroup>
+			<tr>
+				<th>内容：</th>
+				<td>
+					{$this->articleRow['title']}
+				</td>
+				<td rowspan="9">
+						<div class="fart-preview">
+								<div class="top"><p id="art_title">{$this->articleRow['title']}</p></div>
+								<div class="main">
+									<div class="fart-rich-primary">
+										<div class="fart-rich-title" id="art_title_2">{$this->articlePartRow['title']}</div>
+										<div class="fart-rich-mate">
+											<div class="fart-rich-mate-text" id="art_date_v">{$this->articlePartRow['create_time_v']}</div>
+											<div class="fart-rich-mate-text" id="art_author">{$this->_siteConfig->name}</div>
+											<div class="fart-rich-mate-text href" id="art_mp">{$this->articleRow['wechatname']}</div>
+										</div>
+										<div class="fart-rich-content" id="preview-content">
+												{$this->articlePartRow['content']}
+										</div>
+										<div class="fart-rich-tool">
+											<div class="fart-rich-tool-text link">查看原文</div>
+											<div class="fart-rich-tool-text"><i class="fa fa-eye"></i></div>
+											<div class="fart-rich-tool-text" id="art_read"> 100000+</div>
+											<div class="fart-rich-tool-text"><i class="fa fa-thumbs-up text-danger"></i></div>
+											<div class="fart-rich-tool-text">
+												<span id="art_like"> 54321</span>
+											</div>
+											<div class="fart-rich-tool-text right">反馈</div>
+										</div>
+									</div>
+								</div>
+						</div>
+				</td>
+			</tr>
+			<tr>
+				<th>标题：</th>
+				<td><input type='text' onchange="changeDate(this,'art_title_2')"  name='title' class='form-control' value='' pattern='required' placeholder='标题不能为空' /></td>
+			</tr>
+			<tr>
+				<th>媒体：</th>
+				<td><input type='text' class='form-control' name='wechatname' value='' />
+				</td>
+			</tr>
+			<tr>
+				<th>作者：</th>
+				<td><input type='text' class='form-control' name='author' value='' />
+				</td>
+			</tr>
+			<tr>
+				<th>原生地址：</th>
+				<td><input type='text'  name='url' class='form-control' value='' pattern='url' empty placeholder='原生地址' /></td>
+			</tr>
+			<tr>
+				<th>发布日期：</th>
+				<td><input type='text' onchange="changeDate(this,'art_date_v')" autocomplete="off" name='create_time_v' class="form-control" pattern='datetime' autocomplete="off" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value='' pattern='required' placeholder='展示发布日期不能为空' />
+					<p class="help-block">*展示发布日期（必填）</p>
+				</td>
+			</tr>
+			<tr>
+				<th>是否发布：</th>
+				<td>
+					<label class='radio-inline'><input type='radio' name='visibility' value='1' checked=checked />是</label>
+					<label class='radio-inline'><input type='radio' name='visibility' value='0' />否</label>
+				</td>
+			</tr>
+			<tr>
+				<th>排序：</th>
+				<td><input type='text' class='form-control' name='sort' value='' /></td>
+			</tr>
+			<tr style="display: none">
+				<th>word：</th>
+				<td><a class="btn btn-default" onclick="localUpload();">
+						<i class="fa fa-upload"></i>导入
+					</a></td>
+			</tr>
+			<tr>
+				<th>内容：</th><td><textarea id="content" name='content' style='width:100%;height:350px' pattern='required' alt='内容不能为空'>{echo:htmlspecialchars($this->articlePartRow['content'])}</textarea></td>
+			</tr>
+			<tr>
+				<th>描述简要：</th><td><input type='text' class='form-control' name='description' value='' /></td>
+			</tr>
+			<tr>
+				<th>关键词：</th><td><input type='text' class='form-control' name='keywords' value='' /></td>
+			</tr>
+			<tr>
+				<th></th><td><button class='btn btn-primary' type='submit'>确定</button></td><td></td>
+			</tr>
+	</table>
+	</form>
+</div>
+
+
+<script type='text/javascript'>
+jQuery(function(){
+	var FromObj = new Form('article');
+	FromObj.init({echo:JSON::encode($this->articlePartRow)});
+	var editor = null;
+	KindEditor.ready(function(K){
+		editor = K.create('#content',{
+			themeType:'simple',
+			afterCreate : function() {
+				$("#preview-content").html(this.fullHtml());
+            },
+			afterChange:function(){
+				$("#preview-content").html(this.fullHtml());
+			}
+		});
+	});
+});
+
+function changeDate(obj,id){
+	$("#"+id).text($(obj).val());
+}
+
+
+//本地上传附件
+function localUpload()
+{
+	art.dialog.open('{url:/study/upload_word}',{
+		id:'uploadQ',
+		title:'word导入文章',
+		ok:function(iframeWin, topWin){
+	    	var formObject = iframeWin.document.forms[0];
+	    	formObject.submit();
+	    	loadding();
+	    	return false;
+		},
+		okVal:'上传'
+	});
+}
+
+//上传成功
+function uploadSuccess(num,error)
+{
+    unloadding();
+
+    //window.location.href='{url:/exam/question_list}';
+    toastr.success('导入完成，成功：'+num+'，失败：'+error);
+    art.dialog({id:'uploadQ'}).close();
+}
+
+//上传失败
+function uploadFail(error)
+{
+	unloadding();
+	var msg = error ? error : "请上传正确的word文件";
+	toastr.error(msg);
+	art.dialog({id:'uploadQ'}).close();
+}
+//上传失败
+function uploadContent(content)
+{
+	unloadding();
+    toastr.success('导入完成');
+	art.dialog({id:'uploadQ'}).close();
+	KindEditor.html('#content', content)
+}
+</script>

@@ -1,0 +1,9 @@
+DirectoryIndex index.html index.php
+<IfModule mod_rewrite.c>
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^api/(.*)$ api.php/$1 [L,E=PATH_INFO:$1]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond $1 !^(api|views|backup|upload|runtime|install)
+RewriteRule ^(.*)$ index.php [L,E=PATH_INFO:$1]
+</IfModule>

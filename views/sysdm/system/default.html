@@ -1,0 +1,380 @@
+{js:chart}
+<div class="content table-responsive">
+    <div class="content table-responsive">
+        <!--
+
+            <div class="bg-yellow tips">
+                {set:$safeInstance = new safeStrategy();$checkResult = $safeInstance->check();}
+                {if:$checkResult}
+                <ul>
+                    {foreach:items=$checkResult}
+                    <li>{$item['content']}</li>
+                    {/foreach}
+                </ul>
+                {/if}
+            </div>
+            
+            <hr />
+        -->
+
+        <div class="row">
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                <a href="{url:/study/article_list}">
+                    <span class="info-box-icon bg-aqua">
+                        <i class="fa fa-book"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">学习资料</span>
+                        <span class="info-box-number">
+                            {echo:Api::run('articleCount')}/{echo:Api::run('articlePartCount')}
+                            <small>个</small>
+                        </span>
+                    </div>
+                </a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <a href="{url:/exam/question_list}">
+                    <span class="info-box-icon bg-green">
+                        <i class="fa fa-list"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">考题</span>
+                        <span class="info-box-number">
+                                {echo:Api::run('questionCount')}
+                                <small>个</small>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <a href="{url:/exam/paper_log/search[r.did]/=1}">
+                    <span class="info-box-icon bg-orange">
+                        <i class="fa fa-clipboard"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">已完成测试</span>
+                        <span class="info-box-number">
+                                {echo:Api::run('examRecodCount')}
+                                <small>个</small>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="info-box">
+                        <a href="{url:/exam/question_log}">
+                        <span class="info-box-icon bg-orange">
+                            <i class="fa fa-pencil-square"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">答题数量</span>
+                            <span class="info-box-number">
+                                    {echo:Api::run('examQuestionCount',array('isright'=>1))}/{echo:Api::run('examAllQuestionCount')}
+                                    <small>个</small>
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <a href="{url:/company/company_list}">
+                    <span class="info-box-icon bg-olive">
+                        <i class="fa fa-group"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">入驻企业</span>
+                        <span class="info-box-number">
+                                {echo:Api::run('companyCount')}
+                                <small>个</small>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <a href="{url:/company/company_work_list/search[is_accept]/=1}">
+                    <span class="info-box-icon bg-teal">
+                        <i class="fa fa-address-card"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">入职员工</span>
+                        <span class="info-box-number">
+                                {echo:Api::run('getWorkCount',array('is_accept'=>1))}
+                                <small>个</small>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <a href="{url:/company/company_work_list/search[is_accept<]/1}">
+                    <span class="info-box-icon bg-light-blue">
+                        <i class="fa fa-user-plus"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">待审职工</span>
+                        <span class="info-box-number">
+                            {echo:Api::run('getWorkCount',array('is_accept'=>0))}
+                            <small>个</small>
+                        </span>
+                    </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="info-box">
+                        <a href="{url:/comment/suggestion_list/search[a.re_time]/=0000-00-00 00:00:00}">
+                        <span class="info-box-icon bg-red">
+                            <i class="fa fa-comments-o"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">建议待回复</span>
+                            <span class="info-box-number">
+                                    {echo:Api::run('suggestionWaitCount')}
+                                    <small>个</small>
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+            </div>
+        </div>
+        <div class="row">
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="box-header">
+                                <i class="fa fa-line-chart"></i>
+                                <h3 class="box-title">近期积分情况</h3>
+                            </div>
+                            <div class="box-body">
+                                    <div id="myChart" style="min-height:350px;"></div>
+                            </div>
+                </div>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="box-header">
+                                <i class="fa fa-line-chart"></i>
+                                <h3 class="box-title">近期入驻情况</h3>
+                            </div>
+                            <div class="box-body">
+                                    <div id="myChart2" style="min-height:350px;"></div>
+                            </div>
+                </div>
+        </div>
+        <div class="box box-info">
+            <div class="box-header">
+                <i class="fa fa-file-o"></i>
+                <h3 class="box-title">最新10条等待审核员工</h3>
+            </div>
+            <div class="box-body">
+                <table class="table">
+                    <thead>
+                        <th>手机号</th>
+                        <th>姓名</th>
+                        <th>公司</th>
+                        <th>时间</th>
+                        <th>操作</th>
+                    </thead>
+                    <tbody>
+                        {foreach:items=Api::run('getNewsWorkList',array('a_level'=>$this->admin['level'],'a_area'=>$this->admin['area']))}
+                        <tr>
+                            <td>{$item['mobile']}</td>
+                            <td>{$item['true_name']}</td>
+                            <td>{$item['name']}</td>
+                            <td>{$item['create_time']}</td>
+                            <td>
+                                <a href="{url:/company/company_work_list/search[u.is_accept<]/1}">
+                                	<i class='operator fa fa-eye'></i>
+                                </a>
+
+                            </td>
+                        </tr>
+                        {/foreach}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="box box-info">
+                <div class="box-header">
+                    <i class="fa fa-file-o"></i>
+                    <h3 class="box-title">最新10条等待审核企业</h3>
+                </div>
+                <div class="box-body">
+                    <table class="table">
+                        <thead>
+                            <th>名称</th>
+                            <th>法人</th>
+                            <th>电话</th>
+                            <th>区县</th>
+                            <th>时间</th>
+                            <th>操作</th>
+                        </thead>
+                        <tbody>
+                            {foreach:items=Api::run('getNewsCompanyList',array('a_level'=>$this->admin['level'],'a_area'=>$this->admin['area']))}
+                            <tr>
+                                <td>{$item['name']}</td>
+                                <td>{$item['com_faren']}</td>
+                                <td>{$item['mobile']}</td>
+                                <td>{echo:join(' ',area::name($item['area']))}</td>
+                                <td>{$item['create_time']}</td>
+                                <td>
+                                    <a href="{url:/company/company_list/search[c.is_lock]/=1}">
+                                        <i class='operator fa fa-eye'></i>
+                                    </a>
+    
+                                </td>
+                            </tr>
+                            {/foreach}
+                        </tbody>
+                    </table>
+                </div>
+        </div>
+    </div>
+</div>
+{set:
+	$start = IFilter::act(IReq::get('start'));
+	$end   = IFilter::act(IReq::get('end'));
+	$countData = statistics::allpointByArea($start,$end,$this->admin['level']?'':$this->admin['area']);
+	$countData2 = statistics::userByArea($start,$end,$this->admin['level']?'':$this->admin['area']);
+}
+<script type='text/javascript'>
+    //图表生成
+    $(function()
+    {
+        //图标模板
+        var option = {
+            title:
+            {
+            },
+            tooltip: {
+            trigger: 'axis'
+            },
+            legend: {
+                data:[]
+            },
+
+            xAxis:
+            {
+                type: 'category',
+                boundaryGap: false,
+                data:[],
+            },
+            yAxis:
+            {
+                name:'积分',
+                type: 'value',
+            axisLabel: {
+                formatter: '{value}'
+            }
+            },
+            series:
+            [
+                
+            ]
+        };
+        var all_areas = {echo:JSON::encode(array_keys($countData))};
+        var all_datas = {echo:JSON::encode(array_values($countData))};
+        var dates = [];
+        for(var i=0;i<all_datas.length;i++){
+            var aera_datas = all_datas[i];
+            var area_values = [];
+            for(var element in aera_datas) {
+                if(i==0)dates.push(element);
+                area_values.push(aera_datas[element]);
+            };
+            option.series[i] = {
+                    name:all_areas[i],
+                    type:'line',
+                    smooth: true,
+                    data:area_values,
+                    markPoint: {
+                    data: [
+                        {type: 'max', name: '最大值'},
+                        {type: 'min', name: '最小值'}
+                    ]
+                },
+                markLine: {
+                    data: [
+                        {type: 'average', name: '平均值'}
+                    ]
+                }
+                };
+        }
+        option.legend.data = all_areas;
+        option.xAxis.data = dates;
+        echarts.init(document.getElementById('myChart')).setOption(option);
+
+
+         //图标模板
+         var option2 = {
+            title:
+            {
+            },
+            tooltip: {
+            trigger: 'axis'
+            },
+            legend: {
+                data:[]
+            },
+
+            xAxis:
+            {
+                type: 'category',
+                boundaryGap: false,
+                data:[],
+            },
+            yAxis:
+            {
+                name:'人数',
+                type: 'value',
+            axisLabel: {
+                formatter: '{value}'
+            }
+            },
+            series:
+            [
+                
+            ]
+        };
+        var all_areas = {echo:JSON::encode(array_keys($countData2))};
+        var all_datas = {echo:JSON::encode(array_values($countData2))};
+        var dates = [];
+        for(var i=0;i<all_datas.length;i++){
+            var aera_datas = all_datas[i];
+            var area_values = [];
+            for(var element in aera_datas) {
+                if(i==0)dates.push(element);
+                area_values.push(aera_datas[element]);
+            };
+            option2.series[i] = {
+                    name:all_areas[i],
+                    type:'line',
+                    smooth: true,
+                    data:area_values,
+                    markPoint: {
+                    data: [
+                        {type: 'max', name: '最大值'},
+                        {type: 'min', name: '最小值'}
+                    ]
+                },
+                markLine: {
+                    data: [
+                        {type: 'average', name: '平均值'}
+                    ]
+                }
+                };
+        }
+        option2.legend.data = all_areas;
+        option2.xAxis.data = dates;
+        echarts.init(document.getElementById('myChart2')).setOption(option2);
+
+    });
+    
+
+    </script>
