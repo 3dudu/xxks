@@ -19,7 +19,6 @@
 				<li id="step_4"></li>
 			</ul>
 			<div class="log_box">
-			<h2><img src="images/guide_1.gif" width="82" height="15" /></h2>
 				<div class="red_box" style='display:none' id='error_div'>
 					<img src="images/error.gif" width="16" height="15" />
 					请认真阅读并同意以上条款
