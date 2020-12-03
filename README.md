@@ -1,3 +1,9 @@
+## 后台演示
+
+[后台](https://xxksdemo.good365.net:6443/)
+
+> 账号密码：admin/admin123
+
 # 2019-10-29
     1.计划增加推送token绑定
     2.增加iap内购功能
